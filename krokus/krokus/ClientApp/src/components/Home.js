@@ -1,5 +1,32 @@
 import React, { Component } from 'react';
+import { Row, Col } from 'reactstrap';
+import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet'
 
+export function Home() {
+
+    return (
+        <Row className="h-100">
+            <Col xs="2" className="h-100 border-right">
+                Lewy
+            </Col>
+            <Col className="h-100" >
+                <MapContainer center={[50.28853987193634, 18.677606213528406]} zoom={13} className="h-100" >
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <Marker position={[50.28853987193634, 18.677606213528406]}>
+                        <Popup>
+                            A pretty CSS3 popup. <br /> Easily customizable.
+                        </Popup>
+                    </Marker>
+                </MapContainer>
+            </Col>
+        </Row>   
+    );
+}
+
+/*
 export class Home extends Component {
   static displayName = Home.name;
 
@@ -23,4 +50,4 @@ export class Home extends Component {
       </div>
     );
   }
-}
+}*/

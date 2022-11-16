@@ -1,0 +1,9 @@
+﻿.layout-container{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+.map-container{
+    flex:auto;
+}
