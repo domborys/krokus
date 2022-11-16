@@ -1,4 +1,4 @@
-namespace krokus
+namespace krokus_api
 {
     public class WeatherForecast
     {
