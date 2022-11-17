@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using krokus_api.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace krokus_api.Data
 {
-    public class ObservationContext : DbContext
+    public class ObservationContext : IdentityDbContext<User>
     {
         public ObservationContext (DbContextOptions<ObservationContext> options)
             : base(options)

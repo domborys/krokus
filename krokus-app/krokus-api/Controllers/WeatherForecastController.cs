@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace krokus_api.Controllers
@@ -29,5 +30,6 @@ namespace krokus_api.Controllers
             })
             .ToArray();
         }
+
     }
 }

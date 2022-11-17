@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using krokus_api.Data;
 using krokus_api.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace krokus_api.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class ObservationsController : ControllerBase
     {
