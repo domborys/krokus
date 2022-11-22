@@ -24,7 +24,7 @@ namespace krokus_api.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<string> Register(RegisterRequest request)
+        public async Task<string> Register(RegisterDto request)
         {
             var userByEmail = await _userManager.FindByEmailAsync(request.Email);
             var userByUsername = await _userManager.FindByNameAsync(request.Username);
@@ -47,10 +47,10 @@ namespace krokus_api.Services
                 throw new ArgumentException($"Unable to register user {request.Username} errors: {GetErrorsText(result.Errors)}");
             }
 
-            return await Login(new LoginRequest { Username = request.Email, Password = request.Password });
+            return await Login(new LoginDto { Username = request.Email, Password = request.Password });
         }
 
-        public async Task<string> Login(LoginRequest request)
+        public async Task<string> Login(LoginDto request)
         {
             var user = await _userManager.FindByNameAsync(request.Username);
 
@@ -77,11 +77,11 @@ namespace krokus_api.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<UserResponse> GetCurrentUser()
+        public async Task<UserDto> GetCurrentUser()
         {
             var user = _httpContextAccessor.HttpContext?.User;
             var dbuser = await _userManager.GetUserAsync(user);
-            return new UserResponse()
+            return new UserDto()
             {
                 Username = dbuser.UserName,
                 Email = dbuser.Email
@@ -89,12 +89,20 @@ namespace krokus_api.Services
             };
         }
 
-        public async Task<List<UserResponse>> GetAllUsers()
+        public async Task<List<UserDto>> GetAllUsers()
         {
-            return await _userManager.Users.Select(u => new UserResponse() {
+            return await _userManager.Users.Select(u => new UserDto() {
                 Username = u.UserName,
                 Email=u.Email
             }).ToListAsync();
+        }
+
+        public async Task<IdentityResult> ChangePassword(PasswordChangeDto passwordChangeRequest)
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            var dbuser = await _userManager.GetUserAsync(user);
+            var result = await _userManager.ChangePasswordAsync(dbuser, passwordChangeRequest.CurrentPassword, passwordChangeRequest.NewPassword);
+            return result;
         }
 
         private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
@@ -104,7 +112,7 @@ namespace krokus_api.Services
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
-                expires: DateTime.Now.AddMinutes(20),
+                expires: DateTime.Now.AddMinutes(60),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 

@@ -19,11 +19,11 @@ namespace krokus_api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("login")]
+        [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
             var response = await _authenticationService.Login(request);
 
@@ -31,19 +31,19 @@ namespace krokus_api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("register")]
+        [HttpPost("Register")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterDto request)
         {
             var response = await _authenticationService.Register(request);
 
             return Ok(response);
         }
 
-        [HttpGet("me")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponse))]
+        [HttpGet("Me")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Me()
@@ -53,8 +53,8 @@ namespace krokus_api.Controllers
             return Ok(response);
         }
 
-        [HttpGet("all")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserResponse>))]
+        [HttpGet("All")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserDto>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAll()
@@ -62,6 +62,20 @@ namespace krokus_api.Controllers
             var response = await _authenticationService.GetAllUsers();
 
             return Ok(response);
+        }
+
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeDto passwordChangeDto)
+        {
+            var result = await _authenticationService.ChangePassword(passwordChangeDto);
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
         }
     }
 }

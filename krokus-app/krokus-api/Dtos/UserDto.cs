@@ -1,6 +1,6 @@
 ﻿namespace krokus_api.Dtos
 {
-    public class UserResponse
+    public class UserDto
     {
         public string? Username { get; set; }
         public string? Email { get; set; }
