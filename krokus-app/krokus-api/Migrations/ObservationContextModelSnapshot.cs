@@ -10,7 +10,7 @@ using krokus_api.Data;
 
 namespace krokusapi.Migrations
 {
-    [DbContext(typeof(ObservationContext))]
+    [DbContext(typeof(AppDbContext))]
     partial class ObservationContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

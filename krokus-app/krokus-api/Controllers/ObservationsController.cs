@@ -16,9 +16,9 @@ namespace krokus_api.Controllers
     [ApiController]
     public class ObservationsController : ControllerBase
     {
-        private readonly ObservationContext _context;
+        private readonly AppDbContext _context;
 
-        public ObservationsController(ObservationContext context)
+        public ObservationsController(AppDbContext context)
         {
             _context = context;
         }

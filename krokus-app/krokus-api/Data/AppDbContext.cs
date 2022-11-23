@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace krokus_api.Data
 {
-    public class ObservationContext : IdentityDbContext<User>
+    public class AppDbContext : IdentityDbContext<User>
     {
-        public ObservationContext (DbContextOptions<ObservationContext> options)
+        public AppDbContext (DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }

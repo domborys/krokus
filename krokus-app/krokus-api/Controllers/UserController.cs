@@ -1,4 +1,5 @@
-﻿using krokus_api.Dtos;
+﻿using krokus_api.Consts;
+using krokus_api.Dtos;
 using krokus_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,9 +12,9 @@ namespace krokus_api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IUserService _authenticationService;
 
-        public UserController(IAuthenticationService authenticationService)
+        public UserController(IUserService authenticationService)
         {
             _authenticationService = authenticationService;
         }
@@ -54,6 +55,7 @@ namespace krokus_api.Controllers
         }
 
         [HttpGet("All")]
+        [Authorize(Policy = Policies.HasModeratorRights)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserDto>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -76,6 +78,14 @@ namespace krokus_api.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
+        }
+
+        [HttpPut("{id}/Role")]
+        [Authorize(Policy = Policies.HasAdminRights)]
+        public async Task<IActionResult> SetUserRole(string id, [FromBody] SetRoleDto setRoleDto)
+        {
+            await _authenticationService.SetUserRole(id, setRoleDto.Role);
+            return Ok();
         }
     }
 }

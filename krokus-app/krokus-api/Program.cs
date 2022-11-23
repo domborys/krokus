@@ -9,19 +9,22 @@ using krokus_api.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using Microsoft.OpenApi.Models;
+using krokus_api.Consts;
 //using krokus_api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<ObservationContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ObservationContext") ?? throw new InvalidOperationException("Connection string 'ObservationContext' not found.")));
 
 builder.Services.AddIdentity<User, IdentityRole>()
-    .AddEntityFrameworkStores<ObservationContext>()
+    .AddRoles<IdentityRole>()
+    .AddRoleManager<RoleManager<IdentityRole>>()
+    .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
 
 // Add services to the container.
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(options =>
@@ -43,7 +46,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(Policies.HasUserRights, policy => policy.RequireRole(Roles.User, Roles.Moderator, Roles.Admin));
+    options.AddPolicy(Policies.HasModeratorRights, policy => policy.RequireRole(Roles.Moderator, Roles.Admin));
+    options.AddPolicy(Policies.HasAdminRights, policy => policy.RequireRole(Roles.Admin));
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -96,9 +104,27 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/api/ErrorDevelopment");
+}
+else
+{
+    app.UseExceptionHandler("/api/Error");
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var userService = services.GetRequiredService<IUserService>();
+    await userService.CreateRoles();
+    await userService.CreateAdminIfDoesntExist();
+}
 
 app.Run();

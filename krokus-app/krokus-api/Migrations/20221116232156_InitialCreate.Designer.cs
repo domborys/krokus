@@ -10,7 +10,7 @@ using krokus_api.Data;
 
 namespace krokusapi.Migrations
 {
-    [DbContext(typeof(ObservationContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20221116232156_InitialCreate")]
     partial class InitialCreate
     {

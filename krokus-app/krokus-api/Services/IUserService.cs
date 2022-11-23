@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace krokus_api.Services
 {
-    public interface IAuthenticationService
+    public interface IUserService
     {
         public Task<string> Register(RegisterDto request);
 
@@ -11,5 +11,8 @@ namespace krokus_api.Services
         public Task<UserDto> GetCurrentUser();
         public Task<List<UserDto>> GetAllUsers();
         public Task<IdentityResult> ChangePassword(PasswordChangeDto passwordChangeRequest);
+        public Task SetUserRole(string userId, string newRole);
+        public Task CreateAdminIfDoesntExist();
+        public Task CreateRoles();
     }
 }
