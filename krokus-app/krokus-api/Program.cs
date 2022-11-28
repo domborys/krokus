@@ -14,7 +14,8 @@ using krokus_api.Consts;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ObservationContext") ?? throw new InvalidOperationException("Connection string 'ObservationContext' not found.")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ObservationContext") ?? throw new InvalidOperationException("Connection string 'ObservationContext' not found."),
+    x => x.UseNetTopologySuite()));
 
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddRoles<IdentityRole>()
@@ -25,6 +26,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 // Add services to the container.
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITagService, TagService>();
+builder.Services.AddScoped<IObservationService, ObservationService>();
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(options =>
@@ -106,7 +109,7 @@ app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/api/ErrorDevelopment");
+    //app.UseExceptionHandler("/api/ErrorDevelopment");
 }
 else
 {

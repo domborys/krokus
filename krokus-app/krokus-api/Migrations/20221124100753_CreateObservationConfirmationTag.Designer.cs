@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using krokus_api.Data;
@@ -12,9 +13,11 @@ using krokus_api.Data;
 namespace krokusapi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class ObservationContextModelSnapshot : ModelSnapshot
+    [Migration("20221124100753_CreateObservationConfirmationTag")]
+    partial class CreateObservationConfirmationTag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

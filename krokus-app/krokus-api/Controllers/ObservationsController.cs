@@ -8,103 +8,93 @@ using Microsoft.EntityFrameworkCore;
 using krokus_api.Data;
 using krokus_api.Models;
 using Microsoft.AspNetCore.Authorization;
+using krokus_api.Services;
+using krokus_api.Dtos;
+using Azure;
+using krokus_api.Consts;
 
 namespace krokus_api.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     public class ObservationsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IObservationService _observationService;
 
-        public ObservationsController(AppDbContext context)
+        public ObservationsController(IObservationService observationService)
         {
-            _context = context;
+            _observationService = observationService;
         }
 
         // GET: api/Observations
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Observation>>> GetObservation()
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<ObservationDto>>> GetAllObsesrvations()
         {
-            return await _context.Observation.ToListAsync();
+            return await _observationService.FindAllObservations();
         }
 
         // GET: api/Observations/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Observation>> GetObservation(long id)
+        [AllowAnonymous]
+        public async Task<ActionResult<ObservationDto>> GetObservation(long id)
         {
-            var observation = await _context.Observation.FindAsync(id);
+            var obs = await _observationService.FindById(id);
 
-            if (observation == null)
+            if (obs == null)
             {
                 return NotFound();
             }
 
-            return observation;
+            return obs;
+        }
+
+        [HttpPost]
+        [Authorize(Policy = Policies.HasUserRights)]
+        public async Task<ActionResult<TagDto>> PostObservation(ObservationDto obsDto)
+        {
+            var createdObs = await _observationService.CreateObservation(obsDto);
+
+            return CreatedAtAction(nameof(GetObservation), new { id = createdObs.Id }, createdObs);
         }
 
         // PUT: api/Observations/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutObservation(long id, Observation observation)
+        [Authorize(Policy = Policies.HasModeratorRights)]
+        public async Task<IActionResult> PutObservation(long id, ObservationDto obsDto)
         {
-            if (id != observation.Id)
+            if (id != obsDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(observation).State = EntityState.Modified;
+            bool result = await _observationService.UpdateObservation(obsDto);
 
-            try
+            if (result)
             {
-                await _context.SaveChangesAsync();
+                return NoContent();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ObservationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Observations
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Observation>> PostObservation(Observation observation)
-        {
-            _context.Observation.Add(observation);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetObservation), new { id = observation.Id }, observation);
-        }
-
-        // DELETE: api/Observations/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteObservation(long id)
-        {
-            var observation = await _context.Observation.FindAsync(id);
-            if (observation == null)
+            else
             {
                 return NotFound();
             }
 
-            _context.Observation.Remove(observation);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        private bool ObservationExists(long id)
+
+        [HttpDelete("{id}")]
+        [Authorize(Policy = Policies.HasModeratorRights)]
+        public async Task<IActionResult> DeleteObservation(long id)
         {
-            return _context.Observation.Any(e => e.Id == id);
+            var result = await _observationService.DeleteObservation(id);
+            if (result)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
