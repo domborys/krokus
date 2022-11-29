@@ -17,10 +17,18 @@ namespace krokus_api.Services
 
         public async Task<List<TagDto>> FindAllTags()
         {
-            return await _context.Tag.Select(tag => new TagDto { 
-                Id = tag.Id,
-                Name = tag.Name,
-            }).ToListAsync();
+            return await _context.Tag.Select(tag => EntityToDto(tag)).ToListAsync();
+        }
+
+        public async Task<PaginatedList<TagDto>> FindWithQuery(TagQuery queryData)
+        {
+            IQueryable<Tag> query = _context.Tag;
+            if (queryData.Name is not null)
+            {
+                query = query.Where(tag => tag.Name.Contains(queryData.Name));
+            }
+            var source = query.OrderBy(tag => tag.Name).Select(tag => EntityToDto(tag));
+            return await PaginatedList<TagDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
         }
 
         public async Task<TagDto?> FindById(long id)
@@ -30,11 +38,7 @@ namespace krokus_api.Services
             {
                 return null;
             }
-            return new TagDto()
-            {
-                Id = tag.Id,
-                Name = tag.Name,
-            };
+            return EntityToDto(tag);
         }
 
         public async Task<Tag?> FindByName(string name)
@@ -50,11 +54,7 @@ namespace krokus_api.Services
             };
             _context.Tag.Add(tag);
             await _context.SaveChangesAsync();
-            return new TagDto()
-            {
-                Id = tag.Id,
-                Name = tag.Name,
-            };
+            return EntityToDto(tag);
         }
 
         public async Task<bool> UpdateTag(TagDto tagDto)
@@ -79,6 +79,15 @@ namespace krokus_api.Services
             _context.Tag.Remove(tag);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private static TagDto EntityToDto(Tag tag)
+        {
+            return new TagDto()
+            {
+                Id = tag.Id,
+                Name = tag.Name,
+            };
         }
     }
 }

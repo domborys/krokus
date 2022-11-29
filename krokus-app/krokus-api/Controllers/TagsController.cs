@@ -19,15 +19,21 @@ namespace krokus_api.Controllers
             _tagService = tagService;
         }
 
-        [HttpGet]
-        [Authorize(Policy = Policies.HasUserRights)]
+        /*
         public async Task<ActionResult<IEnumerable<TagDto>>> GetAllTags()
         {
             return await _tagService.FindAllTags();
+        }*/
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult<PaginatedList<TagDto>>> GetTags([FromQuery] TagQuery query)
+        {
+            return await _tagService.FindWithQuery(query);
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = Policies.HasUserRights)]
+        [AllowAnonymous]
         public async Task<ActionResult<TagDto>> GetTag(long id)
         {
             var tag = await _tagService.FindById(id);

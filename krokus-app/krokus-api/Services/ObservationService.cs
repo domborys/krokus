@@ -38,6 +38,29 @@ namespace krokus_api.Services
             return EntityToDto(obs);
         }
 
+        public async Task<PaginatedList<ObservationDto>> FindWithQuery(ObservationQuery queryData)
+        {
+            IQueryable<Observation> query = _context.Observation;
+            if(queryData.Tag is not null)
+            {
+                query = query.Where(obs => obs.Tags.Where(tag => queryData.Tag.Contains(tag.Name)).Any());
+            }
+            if(queryData.Title is not null)
+            {
+                query = query.Where(obs => obs.Title.Contains(queryData.Title));
+            }
+            var source = query.Include(obs => obs.Tags).Select(obs => new ObservationDto
+            {
+                Id = obs.Id,
+                Title = obs.Title,
+                UserId = obs.UserId,
+                Location = obs.Location,
+                Tags = obs.Tags.Select(tag => new TagDto() { Id = tag.Id, Name = tag.Name }).ToList(),
+
+            }).OrderBy(obs => obs.Id);
+            return await PaginatedList<ObservationDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
+        }
+
         public async Task<ObservationDto> CreateObservation(ObservationDto obsDto)
         {
             if (obsDto.Location is not null)

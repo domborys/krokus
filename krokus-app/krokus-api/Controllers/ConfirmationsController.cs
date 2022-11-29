@@ -18,11 +18,17 @@ namespace krokus_api.Controllers
             _confirmationService = confirmationService;
         }
 
-        [HttpGet]
-        [AllowAnonymous]
+        /*
         public async Task<ActionResult<IEnumerable<ConfirmationDto>>> GetAllConfirmations()
         {
             return Ok(await _confirmationService.FindAllConfirmations());
+        }*/
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<ConfirmationDto>>> GetConfirmations([FromQuery] ConfirmationQuery query)
+        {
+            return Ok(await _confirmationService.FindWithQuery(query));
         }
 
         [HttpGet("{id}")]

@@ -29,10 +29,15 @@ namespace krokus_api.Controllers
         // GET: api/Observations
         [HttpGet]
         [AllowAnonymous]
+        public async Task<ActionResult<PaginatedList<ObservationDto>>> GetObservations([FromQuery] ObservationQuery query)
+        {
+            return await _observationService.FindWithQuery(query);
+        }
+        /*
         public async Task<ActionResult<IEnumerable<ObservationDto>>> GetAllObsesrvations()
         {
             return await _observationService.FindAllObservations();
-        }
+        }*/
 
         // GET: api/Observations/5
         [HttpGet("{id}")]

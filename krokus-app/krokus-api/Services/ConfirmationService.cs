@@ -19,6 +19,21 @@ namespace krokus_api.Services
             return await _context.Confirmation.Select(conf => EntityToDto(conf)).ToListAsync();
         }
 
+        public async Task<PaginatedList<ConfirmationDto>> FindWithQuery(ConfirmationQuery queryData)
+        {
+            IQueryable<Confirmation> query = _context.Confirmation;
+            if (queryData.ObservationId is not null)
+            {
+                query = query.Where(conf => conf.ObservationId == queryData.ObservationId);
+            }
+            if (queryData.UserId is not null)
+            {
+                query = query.Where(conf => conf.UserId == queryData.UserId);
+            }
+            var source = query.OrderBy(conf => conf.Id).Select(conf => EntityToDto(conf));
+            return await PaginatedList<ConfirmationDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
+        }
+
         public async Task<ConfirmationDto?> FindById(long id)
         {
             var conf = await _context.Confirmation.FindAsync(id);
