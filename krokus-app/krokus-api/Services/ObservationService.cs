@@ -3,6 +3,7 @@ using krokus_api.Dtos;
 using krokus_api.Models;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Operation.Predicate;
 
 namespace krokus_api.Services
 {
@@ -49,6 +50,8 @@ namespace krokus_api.Services
             {
                 query = query.Where(obs => obs.Title.Contains(queryData.Title));
             }
+            query = AddBboxToQuery(queryData, query);
+            query = AddDistanceToQuery(queryData, query);
             var source = query.Include(obs => obs.Tags).Select(obs => new ObservationDto
             {
                 Id = obs.Id,
@@ -115,6 +118,59 @@ namespace krokus_api.Services
             _context.Observation.Remove(obs);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private Polygon? MakeBbox(ObservationQuery queryData)
+        {
+            if(queryData.Xmin is not null && queryData.Ymin is not null && queryData.Xmax is not null && queryData.Ymax is not null)
+            {
+                Coordinate[] bboxCoordinates = new Coordinate[]
+                {
+                    new Coordinate((double)queryData.Xmin, (double)queryData.Ymin),
+                    new Coordinate((double)queryData.Xmax, (double)queryData.Ymin),
+                    new Coordinate((double)queryData.Xmax, (double)queryData.Ymax),
+                    new Coordinate((double)queryData.Xmin, (double)queryData.Ymax),
+                    new Coordinate((double)queryData.Xmin, (double)queryData.Ymin),
+                };
+                GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
+                return new Polygon(new LinearRing(bboxCoordinates), factory);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private IQueryable<Observation> AddBboxToQuery(ObservationQuery queryData, IQueryable<Observation> query)
+        {
+           
+            Polygon? bbox = MakeBbox(queryData);
+            if(bbox == null)
+            {
+                return query;
+            }
+            else
+            {
+                //return query.Where(obs => RectangleIntersects.Intersects(bbox, obs.Location));
+                return query.Where(obs => obs.Location.Intersects(bbox));
+            }
+            
+        }
+
+        private IQueryable<Observation> AddDistanceToQuery(ObservationQuery queryData, IQueryable<Observation> query)
+        {
+            if(queryData.Xcenter is not null && queryData.Ycenter is not null && queryData.Distance is not null)
+            {
+
+                Point center = new Point((double)queryData.Xcenter, (double)queryData.Ycenter) { SRID = 4326 };
+                double distance = (double)queryData.Distance;
+                return query.Where(obs => obs.Location.Distance(center) < distance);
+
+            }
+            else
+            {
+                return query;
+            }
         }
 
         private async Task<List<Tag>> PrepareTags(List<TagDto>? tagDtos)

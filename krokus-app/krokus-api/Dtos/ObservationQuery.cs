@@ -9,6 +9,9 @@
         public double? Ymin { get; set; }
         public double? Xmax { get; set; }
         public double? Ymax { get; set; }
+        public double? Xcenter { get; set; }
+        public double? Ycenter { get; set; }
+        public double? Distance { get; set; }
 
     }
 }
