@@ -16,6 +16,8 @@ namespace krokus_api.Data
         }
 
         public DbSet<krokus_api.Models.Observation> Observation { get; set; } = default!;
+
+        public DbSet<Confirmation> Confirmation { get; set; } = default!;
         public DbSet<Tag> Tag { get; set; } = default!;
     }
 }

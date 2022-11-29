@@ -2,6 +2,7 @@
 using krokus_api.Dtos;
 using krokus_api.Models;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 
 namespace krokus_api.Services
 {
@@ -21,7 +22,7 @@ namespace krokus_api.Services
                 Id = obs.Id,
                 Title = obs.Title,
                 UserId = obs.UserId,
-                Location = new List<double>() { obs.Location.Coordinate.X, obs.Location.Coordinate.Y },
+                Location = obs.Location,
                 Tags = obs.Tags.Select(tag => new TagDto() { Id = tag.Id, Name = tag.Name}).ToList(),
 
             }).ToListAsync();
@@ -39,11 +40,14 @@ namespace krokus_api.Services
 
         public async Task<ObservationDto> CreateObservation(ObservationDto obsDto)
         {
+            if (obsDto.Location is not null)
+                obsDto.Location.SRID = 4326;
             Observation obs = new Observation
             {
                 Title = obsDto.Title,
                 UserId = obsDto.UserId,
-                Location = new NetTopologySuite.Geometries.Point(obsDto.Location[0], obsDto.Location[1]) { SRID = 4326 },
+                Location = DetermineLocation(obsDto),
+                Boundary = obsDto.Boundary,
                 Tags = await PrepareTags(obsDto.Tags)
             };
             if(obsDto.Confirmations != null)
@@ -67,9 +71,12 @@ namespace krokus_api.Services
             {
                 return false;
             }
+            if (obsDto.Location is not null)
+                obsDto.Location.SRID = 4326;
             obs.Title = obsDto.Title;
             obs.UserId = obsDto.UserId;
-            obs.Location = new NetTopologySuite.Geometries.Point(obsDto.Location[0], obsDto.Location[1]) { SRID = 4326 };
+            obs.Location = DetermineLocation(obsDto);
+            obs.Boundary = obsDto.Boundary;
             obs.Tags = await PrepareTags(obsDto.Tags);
             await _context.SaveChangesAsync();
             return true;
@@ -116,6 +123,18 @@ namespace krokus_api.Services
             }
         }
 
+        private Point DetermineLocation(ObservationDto obsDto)
+        {
+            if(obsDto.Boundary is null)
+            {
+                return obsDto.Location ?? new Point(0,0);
+            }
+            else
+            {
+                return obsDto.Boundary.Centroid;
+            }
+        }
+
         private ObservationDto EntityToDto(Observation obs)
         {
             return new ObservationDto
@@ -123,7 +142,8 @@ namespace krokus_api.Services
                 Id = obs.Id,
                 Title = obs.Title,
                 UserId = obs.UserId,
-                Location = new List<double>() { obs.Location.Coordinate.X, obs.Location.Coordinate.Y },
+                Location = obs.Location,
+                Boundary = obs.Boundary,
                 Tags = obs.Tags.Select(tag => new TagDto() { Id = tag.Id, Name = tag.Name }).ToList(),
                 Confirmations = obs.Confirmations?.Select(conf => new ConfirmationDto
                 {

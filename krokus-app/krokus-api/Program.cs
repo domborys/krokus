@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using Microsoft.OpenApi.Models;
 using krokus_api.Consts;
+using NetTopologySuite.IO.Converters;
+using NetTopologySuite;
 //using krokus_api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +30,15 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();
-builder.Services.AddControllers();
+builder.Services.AddScoped<IConfirmationService, ConfirmationService>();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // this constructor is overloaded.  see other overloads for options.
+        var geoJsonConverterFactory = new GeoJsonConverterFactory();
+        options.JsonSerializerOptions.Converters.Add(geoJsonConverterFactory);
+    });
+builder.Services.AddSingleton(NtsGeometryServices.Instance);
 
 builder.Services.AddAuthentication(options =>
 {
