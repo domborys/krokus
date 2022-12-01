@@ -3,7 +3,6 @@ using krokus_api.Dtos;
 using krokus_api.Models;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Operation.Predicate;
 
 namespace krokus_api.Services
 {
@@ -82,7 +81,7 @@ namespace krokus_api.Services
                     IsConfirmed = conf.IsConfirmed,
                     DateTime = conf.DateTime,
                     Description= conf.Description,
-                    UserId = conf.UserId,
+                    UserId = obsDto.UserId,
                 }).ToList();
             }
             _context.Observation.Add(obs);
@@ -100,7 +99,7 @@ namespace krokus_api.Services
             if (obsDto.Location is not null)
                 obsDto.Location.SRID = 4326;
             obs.Title = obsDto.Title;
-            obs.UserId = obsDto.UserId;
+            //obs.UserId = obsDto.UserId;
             obs.Location = DetermineLocation(obsDto);
             obs.Boundary = obsDto.Boundary;
             obs.Tags = await PrepareTags(obsDto.Tags);

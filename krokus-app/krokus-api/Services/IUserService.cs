@@ -10,9 +10,12 @@ namespace krokus_api.Services
         public Task<string> Login(LoginDto request);
         public Task<UserDto> GetCurrentUser();
         public Task<List<UserDto>> GetAllUsers();
+
+        public Task<UserDto?> FindById(string id);
         public Task<IdentityResult> ChangePassword(PasswordChangeDto passwordChangeRequest);
         public Task SetUserRole(string userId, string newRole);
         public Task CreateAdminIfDoesntExist();
         public Task CreateRoles();
+        public Task<bool> DeleteUser(string id);
     }
 }

@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 
 namespace krokus_api.Dtos
 {
-    public class ObservationDto
+    public class ObservationDto : IResourceWithUserId
     {
         public long Id { get; set; }
         public string Title { get; set; } = default!;

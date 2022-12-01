@@ -44,6 +44,7 @@ namespace krokus_api.Controllers
         }
 
         [HttpGet("Me")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -67,6 +68,7 @@ namespace krokus_api.Controllers
         }
 
         [HttpPost("ChangePassword")]
+        [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeDto passwordChangeDto)
         {
             var result = await _authenticationService.ChangePassword(passwordChangeDto);
@@ -76,13 +78,40 @@ namespace krokus_api.Controllers
             }
             else
             {
-                return StatusCode(StatusCodes.Status403Forbidden);
+                return Forbid();
+            }
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Policy = Policies.HasUserRights)]
+        public async Task<ActionResult<UserDto>> GetUser(string id)
+        {
+            var user = await _authenticationService.FindById(id);
+            if(user == null)
+            {
+                return NotFound();
+            }
+            return user;
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Policy = Policies.HasAdminRights)]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var result = await _authenticationService.DeleteUser(id);
+            if (result)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
             }
         }
 
         [HttpPut("{id}/Role")]
         [Authorize(Policy = Policies.HasAdminRights)]
-        public async Task<IActionResult> SetUserRole(string id, [FromBody] SetRoleDto setRoleDto)
+        public async Task<ActionResult> SetUserRole(string id, [FromBody] SetRoleDto setRoleDto)
         {
             await _authenticationService.SetUserRole(id, setRoleDto.Role);
             return Ok();

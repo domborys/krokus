@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Protocol.Plugins;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -103,6 +104,17 @@ namespace krokus_api.Services
             };
         }
 
+        public async Task<UserDto?> FindById(string id)
+        {
+            var dbuser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+            if(dbuser == null)
+            {
+                return null;
+            }
+            var roles = await _userManager.GetRolesAsync(dbuser);
+            return EntityToDto(dbuser, roles);
+        }
+
         public async Task<List<UserDto>> GetAllUsers()
         {
             return await _context.Users.Select(u => new
@@ -180,11 +192,23 @@ namespace krokus_api.Services
 
         public async Task CreateRoles()
         {
-            await _roleManager.CreateAsync(new IdentityRole(Roles.Admin));
-            await _roleManager.CreateAsync(new IdentityRole(Roles.Moderator));
-            await _roleManager.CreateAsync(new IdentityRole(Roles.User));
+            var existingRoles = await _roleManager.Roles.Select(role => role.Name).ToListAsync();
+            var missingRoles = Roles.All.Except(existingRoles);
+            foreach(var role in missingRoles)
+            {
+                await _roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
 
-            
+        public async Task<bool> DeleteUser(string id)
+        {
+            var user = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return false;
+            }
+            await _userManager.DeleteAsync(user);
+            return true;
         }
 
         private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
@@ -213,6 +237,17 @@ namespace krokus_api.Services
             {
                 throw new ArgumentException($"Invalid role: {role}.");
             }
+        }
+
+        private UserDto EntityToDto(User dbuser, IEnumerable<string> roles)
+        {
+            return new UserDto()
+            {
+                Id = dbuser.Id,
+                Username = dbuser.UserName,
+                Email = dbuser.Email,
+                Role = roles.FirstOrDefault(),
+            };
         }
     }
 }

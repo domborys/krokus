@@ -12,6 +12,8 @@ using Microsoft.OpenApi.Models;
 using krokus_api.Consts;
 using NetTopologySuite.IO.Converters;
 using NetTopologySuite;
+using krokus_api.AuthHandlers;
+using Microsoft.AspNetCore.Authorization;
 //using krokus_api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,7 +66,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(Policies.HasUserRights, policy => policy.RequireRole(Roles.User, Roles.Moderator, Roles.Admin));
     options.AddPolicy(Policies.HasModeratorRights, policy => policy.RequireRole(Roles.Moderator, Roles.Admin));
     options.AddPolicy(Policies.HasAdminRights, policy => policy.RequireRole(Roles.Admin));
+    options.AddPolicy(Policies.IsAuthorOrHasModeratorRights, policy => policy.Requirements.Add(new SameUserRequirement() { 
+        AlwaysAllowedRoles = new List<string> { Roles.Moderator, Roles.Admin }
+    }));
 });
+
+builder.Services.AddScoped<IAuthorizationHandler, ResourceWithUserIdAuthorizationHandler>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

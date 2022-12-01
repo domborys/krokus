@@ -1,6 +1,6 @@
 ﻿namespace krokus_api.Dtos
 {
-    public class ConfirmationDto
+    public class ConfirmationDto : IResourceWithUserId
     {
         public long Id { get; set; }
         public bool IsConfirmed { get; set; }

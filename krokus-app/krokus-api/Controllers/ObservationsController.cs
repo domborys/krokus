@@ -12,6 +12,7 @@ using krokus_api.Services;
 using krokus_api.Dtos;
 using Azure;
 using krokus_api.Consts;
+using System.Security.Claims;
 
 namespace krokus_api.Controllers
 {
@@ -20,10 +21,11 @@ namespace krokus_api.Controllers
     public class ObservationsController : ControllerBase
     {
         private readonly IObservationService _observationService;
-
-        public ObservationsController(IObservationService observationService)
+        private readonly IAuthorizationService _authorizationService;
+        public ObservationsController(IObservationService observationService, IAuthorizationService authorizationService)
         {
             _observationService = observationService;
+            _authorizationService = authorizationService;
         }
 
         // GET: api/Observations
@@ -58,6 +60,10 @@ namespace krokus_api.Controllers
         [Authorize(Policy = Policies.HasUserRights)]
         public async Task<ActionResult<TagDto>> PostObservation(ObservationDto obsDto)
         {
+            if(obsDto.UserId == null || obsDto.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                return BadRequest("UserId must be the same as the id of currently logged-in user.");
+            }
             var createdObs = await _observationService.CreateObservation(obsDto);
 
             return CreatedAtAction(nameof(GetObservation), new { id = createdObs.Id }, createdObs);
@@ -65,40 +71,56 @@ namespace krokus_api.Controllers
 
         // PUT: api/Observations/5
         [HttpPut("{id}")]
-        [Authorize(Policy = Policies.HasModeratorRights)]
         public async Task<IActionResult> PutObservation(long id, ObservationDto obsDto)
         {
             if (id != obsDto.Id)
             {
                 return BadRequest();
             }
-
-            bool result = await _observationService.UpdateObservation(obsDto);
-
-            if (result)
+            var currentObs = await _observationService.FindById(id);
+            if(currentObs == null)
             {
+                return NotFound();
+            }
+            var authResult = await _authorizationService.AuthorizeAsync(User, currentObs, Policies.IsAuthorOrHasModeratorRights);
+            if (authResult.Succeeded)
+            {
+                bool result = await _observationService.UpdateObservation(obsDto);
                 return NoContent();
+            }
+            else if (User.Identity?.IsAuthenticated ?? false)
+            {
+                return Forbid();
             }
             else
             {
-                return NotFound();
+                return Unauthorized();
             }
 
         }
 
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = Policies.HasModeratorRights)]
         public async Task<IActionResult> DeleteObservation(long id)
         {
-            var result = await _observationService.DeleteObservation(id);
-            if (result)
+            var currentObs = await _observationService.FindById(id);
+            if (currentObs == null)
             {
+                return NotFound();
+            }
+            var authResult = await _authorizationService.AuthorizeAsync(User, currentObs, Policies.IsAuthorOrHasModeratorRights);
+            if (authResult.Succeeded)
+            {
+                var result = await _observationService.DeleteObservation(id);
                 return NoContent();
+            }
+            else if (User.Identity?.IsAuthenticated ?? false)
+            {
+                return Forbid();
             }
             else
             {
-                return NotFound();
+                return Unauthorized();
             }
         }
     }

@@ -69,7 +69,7 @@ namespace krokus_api.Services
             confirmation.IsConfirmed = confDto.IsConfirmed;
             confirmation.DateTime = confDto.DateTime;
             confirmation.Description = confDto.Description;
-            confirmation.UserId = confDto.UserId;
+            //confirmation.UserId = confDto.UserId;
             confirmation.ObservationId = confDto.ObservationId;
             await _context.SaveChangesAsync();
             return true;
