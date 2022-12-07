@@ -19,5 +19,7 @@ namespace krokus_api.Data
 
         public DbSet<Confirmation> Confirmation { get; set; } = default!;
         public DbSet<Tag> Tag { get; set; } = default!;
+
+        public DbSet<Picture> Picture { get; set; } = default!;
     }
 }

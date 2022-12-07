@@ -11,6 +11,6 @@
 
         public long? ObservationId { get; set; }
         public Observation? Observation { get; set; }
-
+        public List<Picture>? Pictures { get; set; }
     }
 }

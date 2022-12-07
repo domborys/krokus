@@ -33,6 +33,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();
 builder.Services.AddScoped<IConfirmationService, ConfirmationService>();
+builder.Services.AddScoped<IPictureService, PictureService>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

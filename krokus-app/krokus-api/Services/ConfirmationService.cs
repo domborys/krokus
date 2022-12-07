@@ -36,7 +36,7 @@ namespace krokus_api.Services
 
         public async Task<ConfirmationDto?> FindById(long id)
         {
-            var conf = await _context.Confirmation.FindAsync(id);
+            var conf = await _context.Confirmation.Include(conf => conf.Pictures).Where(conf => conf.Id == id).FirstOrDefaultAsync();
             if (conf == null)
             {
                 return null;
@@ -96,7 +96,8 @@ namespace krokus_api.Services
                 DateTime = conf.DateTime,
                 Description = conf.Description,
                 UserId = conf.UserId,
-                ObservationId = conf.ObservationId
+                ObservationId = conf.ObservationId,
+                Pictures = conf.Pictures?.Select(p => new PictureDetailsDto { Id = p.Id, ConfirmationId = p.ConfirmationId})?.ToList()
             };
         }
     }
