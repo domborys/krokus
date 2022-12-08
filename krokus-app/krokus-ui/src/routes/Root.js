@@ -3,6 +3,7 @@ import { Route, Routes, Link } from "react-router-dom";
 import Login from './Login';
 import Map from './Map';
 import Header from './Header';
+import ObservationSearch from './ObservationSearch';
 import { UserContext } from '../services/contexts';
 export default function Root() {
     const [currentUser, setCurrentUser] = useState(null);
@@ -13,7 +14,10 @@ export default function Root() {
                     <Header />
                     <Routes>
                         <Route path="/" element={<div>Home</div>} />
-                        <Route path="/map" element={<Map />} />
+                        {/* }<Route path="/map" element={<Map />}>
+                            <Route index element={<ObservationSearch />} />
+                        </Route>*/}
+                        <Route path="/map/*" element={<Map />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<div>Rejestracja</div>} />
                     </Routes>
