@@ -49,12 +49,22 @@ class ApiService {
     async getObservations(params) {
         
         const searchParams = new URLSearchParams();
+        for (const name in params) {
+            const value = params[name];
+            if (Array.isArray(value)) {
+                value.forEach(el => searchParams.append(name, el));
+            }
+            else {
+                searchParams.append(name, value);
+            }
+        }
+        /*
         if (params.title !== '') {
             searchParams.append('title', params.title);
         }
         if (params.tags) {
             params.tags.forEach(tag => searchParams.append('tag', tag));
-        }
+        }*/
         const url = this.apiPrefix + '/Observations?' + searchParams.toString();
         console.log(url);
         const options = {

@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
-export default function MapPanel({ observations }) {
-
+import { useEffect, useContext, useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent, Circle } from 'react-leaflet';
+import L from 'leaflet';
+import { MapContext } from '../services/contexts';
+export default function MapPanel({ observations}) {
+    const { setMap } = useContext(MapContext);
     const markers = observations.map(observation =>
         <Marker position={observation.location} key={observation.id}>
             <Popup>
@@ -11,12 +13,13 @@ export default function MapPanel({ observations }) {
     );
 
     return (
-        <MapContainer className="full-height" center={[50.288964, 18.678178]} zoom={13}>
+        <MapContainer className="full-height" center={[50.288964, 18.678178]} zoom={13} ref={setMap }>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {markers}
+            <SelectedPointMarker />
             <MapResizer observations={observations} />
         </MapContainer>    
     );
@@ -32,6 +35,7 @@ function MapResizer({ observations }) {
     }, [observations]);
 }
 
+
 function getBounds(observations) {
     const points = observations.map(o => o.location);
     const minN = points.reduce((currentMin, point) => Math.min(currentMin, point[0]), Infinity);
@@ -39,4 +43,32 @@ function getBounds(observations) {
     const maxN = points.reduce((currentMin, point) => Math.max(currentMin, point[0]), -Infinity);
     const maxE = points.reduce((currentMin, point) => Math.max(currentMin, point[1]), -Infinity);
     return [[minN, minE], [maxN, maxE]];
+}
+
+function SelectedPointMarker() {
+    const { selectedPoint, setSelectedPoint, isPointSelection, setPointSelection, selectedPointDistance, locationType } = useContext(MapContext);
+    const isLocationDistance = locationType === 'distance';
+    const selectedPointFloat = useMemo(() => selectedPoint.map(parseFloat), [selectedPoint]);
+    const radius = useMemo(() => parseFloat(selectedPointDistance) * 1000, [selectedPointDistance]);
+    const map = useMapEvent('click', e => {
+        if (isPointSelection) {
+            const latlng = e.latlng;
+            setSelectedPoint([latlng.lat.toFixed(6), latlng.lng.toFixed(6)]);
+            setPointSelection(false);
+        }
+    });
+    useEffect(() => {
+        if (isPointSelection) {
+            L.DomUtil.addClass(map._container, 'cursor-crosshair');
+        }
+        else {
+            L.DomUtil.removeClass(map._container, 'cursor-crosshair');
+        }
+    }, [isPointSelection]);
+    const pointMarkerVisible = isLocationDistance && selectedPointFloat.every(c => !isNaN(c));
+    return (pointMarkerVisible &&
+        <>
+            {!isNaN(radius) && <Circle center={selectedPoint} pathOptions={{ fillColor: 'blue' }} radius={radius} />}
+            <Marker position={selectedPoint} key="selectedPoint"></Marker>
+        </>);
 }

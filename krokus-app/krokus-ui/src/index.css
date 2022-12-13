@@ -24,8 +24,17 @@ code {
 
 .full-height-container{
     flex:auto;
+    min-height:1px;
 }
 
 .full-height{
     height:100%;
+}
+
+.shadow-inside {
+    box-shadow: inset 0 0 5px var(--bs-primary);
+}
+
+.cursor-crosshair, .leaflet-container.cursor-crosshair {
+    cursor: crosshair;
 }
