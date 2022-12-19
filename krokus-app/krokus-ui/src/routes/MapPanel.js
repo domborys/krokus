@@ -1,16 +1,31 @@
 import { useEffect, useContext, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent, Circle, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import { MapContext } from '../services/contexts';
-export default function MapPanel({ observations}) {
+export default function MapPanel({ observations, onObservationClick}) {
     const { setMap } = useContext(MapContext);
+    function handleMarkerClick(observationId, e) {
+        onObservationClick(observationId, e);
+    }
     const markers = observations.map(observation =>
-        <Marker position={observation.location} key={observation.id}>
+        <Marker position={observation.location} key={observation.id}
+            eventHandlers={{
+                click: e => handleMarkerClick(observation.id, e),
+            }}>
             <Popup>
                 {observation.title}
             </Popup>
         </Marker>
     );
+    console.log(observations.filter(observation => observation.boundary));
+    const polygons = observations.filter(observation => observation.boundary).map(observation => 
+        <Polygon pathOptions={{ fillColor: 'blue', color:'blue' }} positions={observation.boundary} key={observation.id}
+            eventHandlers={{
+                click: e => handleMarkerClick(observation.id, e),
+            }}
+        />
+    )
+
 
     return (
         <MapContainer className="full-height" center={[50.288964, 18.678178]} zoom={13} ref={setMap }>
@@ -19,6 +34,7 @@ export default function MapPanel({ observations}) {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {markers}
+            {polygons}
             <SelectedPointMarker />
             <MapResizer observations={observations} />
         </MapContainer>    

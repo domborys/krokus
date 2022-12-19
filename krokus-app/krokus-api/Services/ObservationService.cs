@@ -30,7 +30,7 @@ namespace krokus_api.Services
 
         public async Task<ObservationDto?> FindById(long id)
         {
-            var obs = await _context.Observation.Include(obs => obs.Tags).Include(obs => obs.Confirmations).FirstOrDefaultAsync(obs => obs.Id == id);
+            var obs = await _context.Observation.Include(obs => obs.Tags).Include(obs => obs.Confirmations).Include(obs => obs.User).FirstOrDefaultAsync(obs => obs.Id == id);
             if (obs == null)
             {
                 return null;
@@ -51,12 +51,14 @@ namespace krokus_api.Services
             }
             query = AddBboxToQuery(queryData, query);
             query = AddDistanceToQuery(queryData, query);
-            var source = query.Include(obs => obs.Tags).Select(obs => new ObservationDto
+            var source = query.Include(obs => obs.Tags).Include(obs => obs.User).Select(obs => new ObservationDto
             {
                 Id = obs.Id,
                 Title = obs.Title,
                 UserId = obs.UserId,
+                Username = obs.User.UserName,
                 Location = obs.Location,
+                Boundary = obs.Boundary,
                 Tags = obs.Tags.Select(tag => new TagDto() { Id = tag.Id, Name = tag.Name }).ToList(),
 
             }).OrderBy(obs => obs.Id);
@@ -220,6 +222,7 @@ namespace krokus_api.Services
                 Id = obs.Id,
                 Title = obs.Title,
                 UserId = obs.UserId,
+                Username = obs.User?.UserName,
                 Location = obs.Location,
                 Boundary = obs.Boundary,
                 Tags = obs.Tags.Select(tag => new TagDto() { Id = tag.Id, Name = tag.Name }).ToList(),

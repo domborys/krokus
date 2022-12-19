@@ -1,7 +1,7 @@
 class ApiService {
     constructor() {
         this.token = null;
-        this.apiPrefix = "api";
+        this.apiPrefix = "/api";
     }
 
     async authenticate(credentials) {
@@ -58,17 +58,9 @@ class ApiService {
                 searchParams.append(name, value);
             }
         }
-        /*
-        if (params.title !== '') {
-            searchParams.append('title', params.title);
-        }
-        if (params.tags) {
-            params.tags.forEach(tag => searchParams.append('tag', tag));
-        }*/
         const url = this.apiPrefix + '/Observations?' + searchParams.toString();
         console.log(url);
         const options = {
-            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -84,19 +76,93 @@ class ApiService {
         }
     }
 
-    prepareObservations(apiObs) {
-        function makeNewLocation(oldLocation) {
-            return [oldLocation.coordinates[1], oldLocation.coordinates[0]];
+    async getObservation(id) {
+        const url = this.apiPrefix + '/Observations/' + id;
+        console.log(url);
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+        const response = await fetch(url, options);
+        console.log(response);
+        if (response.ok) {
+            const result = await response.json();
+            return this.prepareObservation(result);
         }
+        else {
+            console.log(response);
+            throw new Error('Could not fetch the observation');
+        }
+    }
+
+    async getConfirmationsOfObservation(observationId) {
+        
+        const searchParams = new URLSearchParams({ observationId: observationId });
+        const url = this.apiPrefix + '/Confirmations?' + searchParams.toString();
+        console.log(url);
+        return this.fetchJson(url);
+    }
+
+    async fetchJson(url, options = {}) {
+        let headers = {
+            'Content-Type': 'application/json',
+        };
+        if (this.token !== null) {
+            headers['Authorization'] = 'Bearer ' + this.token;
+        }
+        if (options.headers) {
+            Object.assign(headers, options.headers);
+        }
+        const allOptions = {
+            headers,
+            ...options
+        };
+        const response = await fetch(url, allOptions);
+        if (response.ok) {
+            const result = await response.json();
+            return result;
+        }
+        else {
+            console.log(response);
+            throw new Error('Could not fetch the observation');
+        }
+        
+    }
+
+    getPictureUrl(id) {
+        return this.apiPrefix + '/Pictures/' + id + '/Contents';
+    }
+
+    prepareObservation(apiObs) {
+        return {
+            ...apiObs,
+            location: makeNewLocation(apiObs.location),
+            boundary: makeNewBoundary(apiObs.boundary),
+        }
+    }
+
+    prepareObservations(apiObs) {
         return {
             ...apiObs,
             items: apiObs.items.map(item => ({
                 ...item,
                 location: makeNewLocation(item.location),
+                boundary: makeNewBoundary(item.boundary),
             })),
         };
     }
 };
+
+function makeNewLocation(oldLocation) {
+    return [oldLocation.coordinates[1], oldLocation.coordinates[0]];
+}
+
+function makeNewBoundary(oldBoundary) {
+    if (oldBoundary === null)
+        return null;
+    return oldBoundary.coordinates[0].slice(0,-1).map(coord => [coord[1], coord[0]]);
+}
 
 const apiService = new ApiService();
 export { ApiService, apiService };

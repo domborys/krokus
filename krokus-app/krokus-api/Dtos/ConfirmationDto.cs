@@ -7,6 +7,7 @@
         public DateTime DateTime { get; set; }
         public string? Description { get; set; }
         public string? UserId { get; set; }
+        public string? Username { get; set; }
         public long? ObservationId { get; set; }
         public List<PictureDetailsDto>? Pictures { get; set; }
     }

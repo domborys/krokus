@@ -21,7 +21,7 @@ namespace krokus_api.Services
 
         public async Task<PaginatedList<ConfirmationDto>> FindWithQuery(ConfirmationQuery queryData)
         {
-            IQueryable<Confirmation> query = _context.Confirmation;
+            IQueryable<Confirmation> query = _context.Confirmation.Include(conf => conf.Pictures).Include(conf => conf.User);
             if (queryData.ObservationId is not null)
             {
                 query = query.Where(conf => conf.ObservationId == queryData.ObservationId);
@@ -36,7 +36,7 @@ namespace krokus_api.Services
 
         public async Task<ConfirmationDto?> FindById(long id)
         {
-            var conf = await _context.Confirmation.Include(conf => conf.Pictures).Where(conf => conf.Id == id).FirstOrDefaultAsync();
+            var conf = await _context.Confirmation.Include(conf => conf.Pictures).Include(conf => conf.User).Where(conf => conf.Id == id).FirstOrDefaultAsync();
             if (conf == null)
             {
                 return null;
@@ -96,6 +96,7 @@ namespace krokus_api.Services
                 DateTime = conf.DateTime,
                 Description = conf.Description,
                 UserId = conf.UserId,
+                Username = conf.User?.UserName,
                 ObservationId = conf.ObservationId,
                 Pictures = conf.Pictures?.Select(p => new PictureDetailsDto { Id = p.Id, ConfirmationId = p.ConfirmationId})?.ToList()
             };

@@ -3,14 +3,20 @@ import CloseButton from 'react-bootstrap/CloseButton';
 import { useNavigate } from 'react-router-dom';
 export default function ObservationList({ observations }) {
     const navigate = useNavigate();
-    const items = observations.items.map(obs => 
-        <ListGroup.Item key={obs.id}>
-            {obs.title}
-        </ListGroup.Item>
-    );
+    
+    function handleObservationClick(observationId) {
+        const id = parseInt(observationId);
+        navigate(`/map/observations/${id}`);
+    }
     function handleCloseButtonClick(e) {
         navigate('/map');
     }
+
+    const items = observations.items.map(obs =>
+        <ListGroup.Item action key={obs.id} onClick={e => handleObservationClick(obs.id, e)}>
+            {obs.title}
+        </ListGroup.Item>
+    );
     return (
         <>
             <div className="d-flex align-items-center mt-2 mb-2 border-bottom">

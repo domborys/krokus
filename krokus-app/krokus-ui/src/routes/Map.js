@@ -4,8 +4,9 @@ import Col from 'react-bootstrap/Col';
 import MapPanel from './MapPanel';
 import ObservationSearch from './ObservationSearch';
 import ObservationList from './ObservationList';
-import { Outlet, Route, Routes, useNavigate } from 'react-router-dom'
-import { useState, useRef } from 'react';
+import Observation from './Observation';
+import { Route, Routes, useNavigate } from 'react-router-dom'
+import { useState } from 'react';
 import { apiService } from '../services/api';
 import { MapContext } from '../services/contexts';
 export default function Map() {
@@ -37,7 +38,12 @@ export default function Map() {
         const result = await apiService.getObservations(params);
         setObservations(result);
         console.log(result);
-        navigate('results');
+        navigate('/map/results');
+    }
+
+    function handleObservationClick(observationId) {
+        const id = parseInt(observationId);
+        navigate(`/map/observations/${id}`);
     }
 
     return (
@@ -49,11 +55,12 @@ export default function Map() {
                         <Routes>
                             <Route index element={<ObservationSearch onSubmit={searchObservations} />} />
                             <Route path="results" element={<ObservationList observations={observations} />} />
+                            <Route path="observations/:id" element={<Observation />} />
                         </Routes>
 
                     </Col>
                     <Col className={`full-height p-0 ${isPointSelection ? 'shadow-inside' : ''}`}>
-                        <MapPanel observations={observations.items} />
+                        <MapPanel observations={observations.items} onObservationClick={handleObservationClick} />
                     </Col>
                 </Row>
             </MapContext.Provider>
