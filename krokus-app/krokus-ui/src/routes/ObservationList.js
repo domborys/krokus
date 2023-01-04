@@ -1,11 +1,15 @@
 import ListGroup from 'react-bootstrap/ListGroup';
 import CloseButton from 'react-bootstrap/CloseButton';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MapContext } from '../services/contexts';
 export default function ObservationList({ observations }) {
     const navigate = useNavigate();
-    
+    const { setFocusedObservationId } = useContext(MapContext);
+
     function handleObservationClick(observationId) {
         const id = parseInt(observationId);
+        setFocusedObservationId(id);
         navigate(`/map/observations/${id}`);
     }
     function handleCloseButtonClick(e) {

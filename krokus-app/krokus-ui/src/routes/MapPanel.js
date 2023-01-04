@@ -17,7 +17,6 @@ export default function MapPanel({ observations, onObservationClick}) {
             </Popup>
         </Marker>
     );
-    console.log(observations.filter(observation => observation.boundary));
     const polygons = observations.filter(observation => observation.boundary).map(observation => 
         <Polygon pathOptions={{ fillColor: 'blue', color:'blue' }} positions={observation.boundary} key={observation.id}
             eventHandlers={{
@@ -36,7 +35,10 @@ export default function MapPanel({ observations, onObservationClick}) {
             {markers}
             {polygons}
             <SelectedPointMarker />
+            <SelectedPolygon />
             <MapResizer observations={observations} />
+            <MapZoomer />
+            <SelectedPlace />
         </MapContainer>    
     );
 }
@@ -51,9 +53,32 @@ function MapResizer({ observations }) {
     }, [observations]);
 }
 
+function MapZoomer() {
+    const map = useMap();
+    const { focusedObservation } = useContext(MapContext);
+    useEffect(() => {
+        console.log('focused',focusedObservation);
+        if (focusedObservation) {
+            map.setView(focusedObservation.location, 13);
+            console.log('zooming');
+        }
+    }, [focusedObservation]);
+}
+
 
 function getBounds(observations) {
     const points = observations.map(o => o.location);
+    return getBbox(points);
+    /*
+    const minN = points.reduce((currentMin, point) => Math.min(currentMin, point[0]), Infinity);
+    const minE = points.reduce((currentMin, point) => Math.min(currentMin, point[1]), Infinity);
+    const maxN = points.reduce((currentMin, point) => Math.max(currentMin, point[0]), -Infinity);
+    const maxE = points.reduce((currentMin, point) => Math.max(currentMin, point[1]), -Infinity);
+    return [[minN, minE], [maxN, maxE]];
+    */
+}
+
+function getBbox(points) {
     const minN = points.reduce((currentMin, point) => Math.min(currentMin, point[0]), Infinity);
     const minE = points.reduce((currentMin, point) => Math.min(currentMin, point[1]), Infinity);
     const maxN = points.reduce((currentMin, point) => Math.max(currentMin, point[0]), -Infinity);
@@ -62,7 +87,8 @@ function getBounds(observations) {
 }
 
 function SelectedPointMarker() {
-    const { selectedPoint, setSelectedPoint, isPointSelection, setPointSelection, selectedPointDistance, locationType } = useContext(MapContext);
+    const { selectedPoint, setSelectedPoint, isPointSelection, setPointSelection,
+        selectedPointDistance, locationType, addLocationType, setAddLocationType, subpage } = useContext(MapContext);
     const isLocationDistance = locationType === 'distance';
     const selectedPointFloat = useMemo(() => selectedPoint.map(parseFloat), [selectedPoint]);
     const radius = useMemo(() => parseFloat(selectedPointDistance) * 1000, [selectedPointDistance]);
@@ -81,10 +107,85 @@ function SelectedPointMarker() {
             L.DomUtil.removeClass(map._container, 'cursor-crosshair');
         }
     }, [isPointSelection]);
-    const pointMarkerVisible = isLocationDistance && selectedPointFloat.every(c => !isNaN(c));
+    const pointMarkerVisible =
+        (subpage === 'observationSearch' && locationType === 'distance')
+        || (subpage === 'observationAdd' && addLocationType === 'point')
+        && selectedPointFloat.every(c => !isNaN(c));
     return (pointMarkerVisible &&
         <>
             {!isNaN(radius) && <Circle center={selectedPoint} pathOptions={{ fillColor: 'blue' }} radius={radius} />}
             <Marker position={selectedPoint} key="selectedPoint"></Marker>
         </>);
+}
+
+function deepParseFloat(val) {
+    if (Array.isArray(val))
+        return val.map(deepParseFloat);
+    else
+        return parseFloat(val);
+}
+
+function filterNanPoints(points) {
+    return points.filter(point => point.every(coord => !isNaN(coord)));
+}
+
+function filterEmptyPoints(points) {
+    return points.filter(point => point.some(coord => coord.trim() !== ''));
+}
+
+function SelectedPolygon() {
+    const { selectedPolygon, setSelectedPolygon, isPolygonSelection, setPolygonSelection, subpage, addLocationType } = useContext(MapContext);
+    const selectedPolygonFloat = useMemo(() => filterNanPoints(deepParseFloat(selectedPolygon)), [selectedPolygon]);
+    const map = useMapEvent('click', e => {
+        if (isPolygonSelection) {
+            const latlng = e.latlng;
+            const newPoint = [latlng.lat.toFixed(6), latlng.lng.toFixed(6)];
+            const filteredPolygon = filterEmptyPoints(selectedPolygon);
+            const newPolygon = filteredPolygon.concat([newPoint]);
+            setSelectedPolygon(newPolygon);
+        }
+    });
+    useEffect(() => {
+        if (isPolygonSelection) {
+            L.DomUtil.addClass(map._container, 'cursor-crosshair');
+        }
+        else {
+            L.DomUtil.removeClass(map._container, 'cursor-crosshair');
+        }
+    }, [isPolygonSelection]);
+    const polygonVisible = subpage === 'observationAdd' && addLocationType === 'polygon';
+    const polygon = 
+        <Polygon pathOptions={{ fillColor: 'blue', color: 'blue' }} positions={selectedPolygonFloat} key="selectedPolygon" />;
+    return polygonVisible && polygon;
+
+}
+
+function SelectedPlace() {
+    const map = useMap();
+    const { selectedPlace, locationType, subpage } = useContext(MapContext);
+    const visible = selectedPlace && locationType === 'place' && (subpage === 'placeSearch' || subpage === 'observationSearch');
+    useEffect(() => {
+        if (!visible) {
+            return;
+        }
+        else if (selectedPlace.leaflet.type === 'Point') {
+            map.setView(selectedPlace.leaflet.coordinates, 13);
+        }
+        else {
+            const bounds = getBbox(selectedPlace.leaflet.coordinates);
+            map.fitBounds(bounds);
+        }
+    }, [selectedPlace]);
+
+    let el;
+    if (!visible) {
+        el = null;
+    }
+    else if (selectedPlace.leaflet.type === 'Point') {
+        el = <Marker position={selectedPlace.leaflet.coordinates} key="selectedPlacePoint"></Marker>
+    }
+    else {
+        el = <Polygon pathOptions={{ fillColor: 'blue', color: 'blue' }} positions={selectedPlace.leaflet.coordinates} key="selectedPlacePolygon" />;
+    }
+    return el;
 }

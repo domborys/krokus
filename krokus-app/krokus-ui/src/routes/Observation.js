@@ -5,6 +5,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import ConfirmationItem from '../components/ConfirmationItem';
 import Badge from 'react-bootstrap/Badge';
+import { Link } from "react-router-dom";
+import Button from 'react-bootstrap/Button';
 export default function Observation() {
     const navigate = useNavigate();
     const [observation, setObservation] = useState(null);
@@ -43,7 +45,10 @@ export default function Observation() {
                 <div>{tags}</div>
             </div>
             <div>
-                <h5>Potwierdzenia</h5>
+            <h5>Potwierdzenia</h5>
+            <Button type="button" as={Link} to={`/map/confirmations-add?observationId=${observation.id}`}>
+                Dodaj
+            </Button>
                 <ListGroup>
                     {confirmationItems}
                 </ListGroup>

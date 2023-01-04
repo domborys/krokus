@@ -38,6 +38,12 @@ export default function () {
             <Nav.Item>
                 <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
             </Nav.Item>
+            {currentUser !== null &&
+                <Nav.Item>
+                    <Nav.Link as={Link} to="/map/observations-add">Dodaj obserwację</Nav.Link>
+                </Nav.Item>
+
+            }
             {accountItems}
         </Nav>
     );

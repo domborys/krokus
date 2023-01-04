@@ -6,13 +6,15 @@ import TagInput from '../components/TagInput';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
+import CloseButton from 'react-bootstrap/CloseButton';
+import InputGroup from 'react-bootstrap/InputGroup';
 import { MapContext } from '../services/contexts';
-export default function ObservationSearch({onSubmit}) {
-    const [title, setTitle] = useState('');
-    const [tags, setTags] = useState([]);
-    //const [locationType, setLocationType] = useState(null);
-    const { selectedPoint, setSelectedPoint, setPointSelection, selectedPointDistance, setSelectedPointDistance, locationType, setLocationType } = useContext(MapContext);
 
+import { useNavigate } from 'react-router-dom'
+export default function ObservationSearch({onSubmit}) {
+    const { title, setTitle, tags, setTags, selectedPoint, setSelectedPoint, setPointSelection, selectedPointDistance, setSelectedPointDistance,
+        locationType, setLocationType, placeName, setPlaceName, selectedPlace, setSelectedPlace, } = useContext(MapContext);
+    const navigate = useNavigate();
     const isLocationDistance = locationType === 'distance';
     function handleTitleChange(e) {
         setTitle(e.target.value);
@@ -36,7 +38,16 @@ export default function ObservationSearch({onSubmit}) {
     function handleAddFromMapClick(e) {
         setPointSelection(true);
     }
-    function handleSubmit(e) {
+    function handlePlaceNameChange(e) {
+        setPlaceName(e.target.value);
+    }
+    function handlePlaceSearchClick() {
+        navigate(`/map/place-search`);
+    }
+    function handlePlaceDeleteClick() {
+        setSelectedPlace(null);
+    }
+    async function handleSubmit(e) {
         e.preventDefault();
         const params = {};
         if (title.trim() !== '') {
@@ -45,12 +56,10 @@ export default function ObservationSearch({onSubmit}) {
         if (tags.length > 0) {
             params.tag = tags;
         }
-        onSubmit(params);
-        
+        await onSubmit(params);
+        setSelectedPlace(null);
     }
-    function formatCoord(coord) {
-        return coord?.toFixed(6);
-    }
+    
     return (
         <div>
             <h2>Szukaj obserwacji</h2>
@@ -59,12 +68,13 @@ export default function ObservationSearch({onSubmit}) {
                     <Form.Label>Tytuł</Form.Label>
                     <Form.Control type="text" value={title} onChange={handleTitleChange} />
                 </Form.Group>
-                <TagInput label="Tagi" onTagsChange={handleTagsChange} />
+                <TagInput label="Tagi" initialTags={tags} onTagsChange={handleTagsChange} />
                 <div>Miejsce</div>
                 <div>
-                    <Form.Check type="radio" name="radioLocation" id="radioLocationAnywhere" value="anywhere" label="Gdziekolwiek" onChange={handleLocationTypeChange} />
-                    <Form.Check type="radio" name="radioLocation" id="radioLocationVisible" value="visible" label="Widoczny obszar" onChange={handleLocationTypeChange} />
-                    <Form.Check type="radio" name="radioLocation" id="radioLocationDistance" value="distance" label="W okolicy punktu" onChange={handleLocationTypeChange } />
+                    <Form.Check type="radio" name="radioLocation" id="radioLocationAnywhere" value="anywhere" label="Gdziekolwiek" checked={locationType ==='anywhere'} onChange={handleLocationTypeChange} />
+                    <Form.Check type="radio" name="radioLocation" id="radioLocationVisible" value="visible" label="Widoczny obszar" checked={locationType === 'visible'} onChange={handleLocationTypeChange} />
+                    <Form.Check type="radio" name="radioLocation" id="radioLocationDistance" value="distance" label="W okolicy punktu" checked={locationType === 'distance'} onChange={handleLocationTypeChange} />
+                    <Form.Check type="radio" name="radioLocation" id="radioLocationPlace" value="place" label="W pobliżu miejscowości" checked={locationType === 'place'} onChange={handleLocationTypeChange} />
                 </div>
                 <Collapse in={isLocationDistance}>
                     <div>
@@ -93,6 +103,31 @@ export default function ObservationSearch({onSubmit}) {
                             </Card.Body>
                         </Card>
                         
+                    </div>
+                </Collapse>
+                <Collapse in={locationType === 'place'}>
+                    <div>
+                    {selectedPlace &&
+                        <>
+                            <Card className="d-flex flex-row align-items-center mt-3 mb-3 p-2">
+                                <div className="flex-fill">
+                                    {selectedPlace.display_name}
+                                </div>
+                                <CloseButton aria-label="Usuń miejscowość" onClick={handlePlaceDeleteClick} className="ms-2" />
+                            </Card>
+                        </>
+                    }
+                    {!selectedPlace &&
+                        <>
+                            <Form.Label htmlFor="formPlaceName">Miejscowość</Form.Label>
+                            <InputGroup className="mb-3">
+                                <Form.Control id="formPlaceName" value={placeName} onChange={handlePlaceNameChange} />
+                                <Button variant="primary" onClick={handlePlaceSearchClick}>
+                                    Szukaj
+                                </Button>
+                            </InputGroup>
+                        </>
+                    }
                     </div>
                 </Collapse>
                 <Button variant="primary" type="submit">

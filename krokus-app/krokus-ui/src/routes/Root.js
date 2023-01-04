@@ -5,6 +5,10 @@ import Map from './Map';
 import Header from './Header';
 import ObservationSearch from './ObservationSearch';
 import { UserContext } from '../services/contexts';
+import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale, setDefaultLocale } from "react-datepicker";
+import pl from 'date-fns/locale/pl';
+registerLocale('pl', pl);
 export default function Root() {
     const [currentUser, setCurrentUser] = useState(null);
     return (
