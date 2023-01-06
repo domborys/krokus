@@ -104,6 +104,11 @@ class ApiService {
         return this.fetchJson(url);
     }
 
+    async getConfirmation(id) {
+        const url = this.apiPrefix + '/Confirmations/' + id;
+        return this.fetchJson(url);
+    }
+
     async postObservation(observation) {
         const url = this.apiPrefix + '/Observations/';
         const observationToSend = {
@@ -121,6 +126,31 @@ class ApiService {
         return response;
     }
 
+    async putObservation(observation) {
+        const url = this.apiPrefix + '/Observations/' + observation.id;
+        const observationToSend = {
+            ...observation,
+            location: pointLeafletToGeo(observation.location),
+            boundary: pointLeafletToGeo(observation.boundary),
+        }
+        const options = {
+            method: 'PUT',
+            body: JSON.stringify(observationToSend),
+        }
+        console.log('Request', observationToSend);
+        await this.fetchJson(url, options);
+    }
+
+    
+
+    async deleteObservation(id) {
+        const url = this.apiPrefix + '/Observations/' + id;
+        const options = {
+            method: 'DELETE',
+        }
+        await this.fetchJson(url, options);
+    }
+
     async postConfirmation(confirmation) {
         const url = this.apiPrefix + '/Confirmations/';
         const options = {
@@ -131,6 +161,23 @@ class ApiService {
         const response = await this.fetchJson(url, options);
         console.log(response);
         return response;
+    }
+
+    async putConfirmation(confirmation) {
+        const url = this.apiPrefix + '/Confirmations/' + confirmation.id;
+        const options = {
+            method: 'PUT',
+            body: JSON.stringify(confirmation),
+        }
+        await this.fetchJson(url, options);
+    }
+
+    async deleteConfirmation(id) {
+        const url = this.apiPrefix + '/Confirmations/' + id;
+        const options = {
+            method: 'DELETE',
+        }
+        await this.fetchJson(url, options);
     }
 
     async postPictures(confirmationId, files) {
@@ -153,6 +200,14 @@ class ApiService {
             console.log(response);
             throw new Error('Could not fetch the data');
         }
+    }
+
+    async deletePicture(id) {
+        const url = this.apiPrefix + '/Pictures/' + id;
+        const options = {
+            method: 'DELETE',
+        }
+        await this.fetchJson(url, options);
     }
 
     async getPlace(placeQuery) {
@@ -184,8 +239,13 @@ class ApiService {
         };
         const response = await fetch(url, allOptions);
         if (response.ok) {
-            const result = await response.json();
-            return result;
+            if (response.status === 204) {
+                return;
+            }
+            else {
+                const result = await response.json();
+                return result;
+            }
         }
         else {
             console.log(response);

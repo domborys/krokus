@@ -16,6 +16,8 @@ const paths = {
     observation: '/map/observations/:id',
     observationAdd: '/map/observations-add',
     confirmationAdd: '/map/confirmations-add',
+    observationEdit: '/map/observations-edit/:id',
+    confirmationEdit: '/map/confirmations-edit/:id',
     placeSearch: '/map/place-search',
 };
 

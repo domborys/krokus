@@ -3,10 +3,11 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent, Circle, Po
 import L from 'leaflet';
 import { MapContext } from '../services/contexts';
 export default function MapPanel({ observations, onObservationClick}) {
-    const { setMap } = useContext(MapContext);
+    const { setMap, subpage } = useContext(MapContext);
     function handleMarkerClick(observationId, e) {
         onObservationClick(observationId, e);
     }
+    const observationsVisible = subpage !== 'observationAdd' && subpage !== 'observationEdit';
     const markers = observations.map(observation =>
         <Marker position={observation.location} key={observation.id}
             eventHandlers={{
@@ -32,8 +33,8 @@ export default function MapPanel({ observations, onObservationClick}) {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {markers}
-            {polygons}
+            {observationsVisible && markers}
+            {observationsVisible && polygons}
             <SelectedPointMarker />
             <SelectedPolygon />
             <MapResizer observations={observations} />
@@ -57,10 +58,9 @@ function MapZoomer() {
     const map = useMap();
     const { focusedObservation } = useContext(MapContext);
     useEffect(() => {
-        console.log('focused',focusedObservation);
         if (focusedObservation) {
-            map.setView(focusedObservation.location, 13);
-            console.log('zooming');
+            const zoom = Math.max(map.getZoom(), 15);
+            map.setView(focusedObservation.location, zoom);
         }
     }, [focusedObservation]);
 }
@@ -110,6 +110,7 @@ function SelectedPointMarker() {
     const pointMarkerVisible =
         (subpage === 'observationSearch' && locationType === 'distance')
         || (subpage === 'observationAdd' && addLocationType === 'point')
+        || (subpage === 'observationEdit' && addLocationType === 'point')
         && selectedPointFloat.every(c => !isNaN(c));
     return (pointMarkerVisible &&
         <>
@@ -153,7 +154,8 @@ function SelectedPolygon() {
             L.DomUtil.removeClass(map._container, 'cursor-crosshair');
         }
     }, [isPolygonSelection]);
-    const polygonVisible = subpage === 'observationAdd' && addLocationType === 'polygon';
+    const polygonVisible = (subpage === 'observationAdd' && addLocationType === 'polygon')
+        || (subpage === 'observationEdit' && addLocationType === 'polygon');
     const polygon = 
         <Polygon pathOptions={{ fillColor: 'blue', color: 'blue' }} positions={selectedPolygonFloat} key="selectedPolygon" />;
     return polygonVisible && polygon;

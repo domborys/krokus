@@ -4,9 +4,18 @@ import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 import CloseButton from 'react-bootstrap/CloseButton';
 
-export default function TagInput({ initialTags = [], label, onTagsChange = () => { } }) {
+const emptyTags = [];
+
+export default function TagInput({ initialTags = emptyTags, label, onTagsChange = () => { } }) {
     const [tags, setTags] = useState(initialTags);
+    const [prevTagsProp, setPrevTagsProp] = useState(initialTags);
     const [typedTag, setTypedTag] = useState('');
+
+    if (initialTags !== prevTagsProp) {
+        setTags(initialTags);
+        setPrevTagsProp(initialTags);
+    }
+
     function handleTypedTagChange(e) {
         setTypedTag(e.target.value);
     }

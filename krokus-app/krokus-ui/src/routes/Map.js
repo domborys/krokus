@@ -6,7 +6,9 @@ import ObservationSearch from './ObservationSearch';
 import ObservationList from './ObservationList';
 import Observation from './Observation';
 import ObservationAdd from './ObservationAdd';
+import ObservationEdit from './ObservationEdit';
 import ConfirmationAdd from './ConfirmationAdd';
+import ConfirmationEdit from './ConfirmationEdit';
 import PlaceSearch from './PlaceSearch';
 import { Route, Routes, useNavigate, useMatch, useLocation, useParams } from 'react-router-dom'
 import { useState, useMemo } from 'react';
@@ -30,6 +32,7 @@ export default function Map() {
     const [addLocationType, setAddLocationType] = useState('point');
     const [focusedObservationId, setFocusedObservationId] = useState(null);
     const [placeName, setPlaceName] = useState('');
+    const [prevSearchParams, setPrevSearchParams] = useState({});
     const navigate = useNavigate();
     const [map, setMap] = useState(null);
     const location = useLocation();
@@ -71,11 +74,18 @@ export default function Map() {
                 }
             }
         }
+        setPrevSearchParams(params);
         const result = await apiService.getObservations(params);
         setObservations(result);
         console.log(result);
         navigate('/map/results');
     }
+
+    async function reloadObservations() {
+        const result = await apiService.getObservations(prevSearchParams);
+        setObservations(result);
+        console.log(result);
+    } 
 
     function handleObservationClick(observationId) {
         const id = parseInt(observationId);
@@ -88,7 +98,7 @@ export default function Map() {
                 title, setTitle, tags, setTags,
                 selectedPoint, setSelectedPoint, isPointSelection, setPointSelection, selectedPointDistance, setSelectedPointDistance,
                 locationType, setLocationType, addLocationType, setAddLocationType, setMap, selectedPolygon, setSelectedPolygon, isPolygonSelection, setPolygonSelection, subpage,
-                focusedObservationId, setFocusedObservationId, focusedObservation, placeName, setPlaceName, selectedPlace, setSelectedPlace
+                focusedObservationId, setFocusedObservationId, focusedObservation, placeName, setPlaceName, selectedPlace, setSelectedPlace, reloadObservations
             }}>
                 <Row className="full-height">
                     <Col xs={3} className="full-height border-end" style={{ overflow: 'auto' }} >
@@ -98,7 +108,9 @@ export default function Map() {
                             <Route path="results" element={<ObservationList observations={observations} />} />
                             <Route path="observations-add" element={<ObservationAdd />} />
                             <Route path="observations/:id" element={<Observation />} />
+                            <Route path="observations-edit/:id" element={<ObservationEdit />} />
                             <Route path="confirmations-add" element={<ConfirmationAdd />} />
+                            <Route path="confirmations-edit/:id" element={<ConfirmationEdit />} />
                             <Route path="place-search" element={<PlaceSearch />} />
                         </Routes>
                     </Col>

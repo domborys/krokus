@@ -3,27 +3,46 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Collapse from 'react-bootstrap/Collapse';
-import InputGroup from 'react-bootstrap/InputGroup';
 import { useState, useContext, useEffect } from 'react';
 import TagInput from '../components/TagInput';
 import { MapContext } from '../services/contexts';
-import DatePicker from 'react-datepicker';
 import { UserContext } from '../services/contexts';
-import { deepParseFloat } from '../services/utils';
+import { deepParseFloat, deepToString } from '../services/utils';
 import { apiService } from '../services/api';
-import { useNavigate} from 'react-router-dom'
-export default function ObservationSearch() {
+import { useNavigate, useParams } from 'react-router-dom'
+export default function ObservationEdit() {
+    const { id } = useParams();
     const [title, setTitle] = useState('');
     const [tags, setTags] = useState([]);
-    const [description, setDescription] = useState('');
-    const { selectedPoint, setSelectedPoint, setPointSelection, selectedPolygon, setSelectedPolygon, addLocationType, setAddLocationType, setPolygonSelection } = useContext(MapContext);
-    const [observationDate, setObservationDate] = useState(new Date());
-    const [files, setFiles] = useState([]);
-    const { currentUser } = useContext(UserContext);
+    const { selectedPoint, setSelectedPoint, setPointSelection, selectedPolygon, setSelectedPolygon, addLocationType, setAddLocationType, setPolygonSelection, reloadObservations } = useContext(MapContext);
+    //const { currentUser } = useContext(UserContext);
     const navigate = useNavigate();
 
     useEffect(() => clearSharedState(), []);
+    useEffect(() => {
+        apiService.getObservation(id)
+            .then(observation => {
+                setState(observation);
+            });
+    }, []);
 
+    function setState(observation) {
+        console.log('observation', observation);
+        setTitle(observation.title);
+        setTags(observation.tags.map(tag => tag.name));
+        setPointSelection(false);
+        setPolygonSelection(false);
+        if (observation.boundary) {
+            setAddLocationType('polygon');
+            setSelectedPoint(['','']);
+            setSelectedPolygon(deepToString(observation.boundary));
+        }
+        else {
+            setAddLocationType('point');
+            setSelectedPoint(deepToString(observation.location));
+            setSelectedPolygon([]);
+        }
+    }
     function clearSharedState() {
         setSelectedPoint(['', '']);
         setPointSelection(false);
@@ -45,9 +64,9 @@ export default function ObservationSearch() {
     async function handleSubmit(e) {
         e.preventDefault();
         const observation = {
+            id: id,
             title: title,
-            userId: currentUser.id,
-            tags: tags.map(tag => ({name:tag}))
+            tags: tags.map(tag => ({ name: tag }))
         };
         if (addLocationType === 'point') {
             observation.location = deepParseFloat(selectedPoint);
@@ -55,17 +74,9 @@ export default function ObservationSearch() {
         else if (addLocationType === 'polygon') {
             observation.boundary = deepParseFloat(selectedPolygon);
         }
-        const confirmation = {
-            isConfirmed: true,
-            dateTime: observationDate.toISOString(),
-            description:description
-        }
-        observation.confirmations = [confirmation];
-        const savedObservation = await apiService.postObservation(observation);
-        const confirmationId = savedObservation.confirmations[0].id;
-        await apiService.postPictures(confirmationId, files);
-        //console.log('savedObservation',savedObservation);
-        navigate(`/map/observations/${savedObservation.id}`);
+        await apiService.putObservation(observation);
+        await reloadObservations();
+        navigate(`/map/observations/${id}`);
     }
     function handleAddFromMapClick(e) {
         setPointSelection(true);
@@ -80,22 +91,17 @@ export default function ObservationSearch() {
         setSelectedPolygon(newPolygon);
         setPolygonSelection(true);
     }
-    function handleDescriptionChange(e) {
-        setDescription(e.target.value);
-    }
-    function handlePicturesChange(e) {
-        setFiles(Array.from(e.target.files));
-    }
+    
     const polygonInputs = selectedPolygon.map((point, index) => <PolygonPointInputs pointIndex={index} key={index} />);
     return (
         <div>
-            <h2>Dodaj obserwację</h2>
+            <h2>Edytuj obserwację</h2>
             <Form onSubmit={handleSubmit} action="#">
                 <Form.Group className="mb-3" controlId="formObservationTitle">
                     <Form.Label>Tytuł</Form.Label>
                     <Form.Control type="text" value={title} onChange={handleTitleChange} />
                 </Form.Group>
-                <TagInput label="Tagi" onTagsChange={handleTagsChange} />
+                <TagInput label="Tagi" initialTags={tags} onTagsChange={handleTagsChange} />
                 <div>Położenie</div>
                 <div>
                     <Form.Check type="radio" name="radioLocationType" id="radioLocationTypePoint" value="point" label="Punkt" checked={addLocationType === 'point'} onChange={handleLocationTypeChange} />
@@ -126,29 +132,8 @@ export default function ObservationSearch() {
                         <Button variant="primary" type="button" className="mb-2" onClick={handleAddPolygonPointClick}>Dodaj punkt</Button>
                     </div>
                 </Collapse>
-
-                
-                <div>Data obserwacji</div>
-                <DatePicker
-                    selected={observationDate}
-                    onChange={(date) => setObservationDate(date)}
-                    timeInputLabel="Godzina:"
-                    dateFormat="dd.MM.yyyy HH:mm"
-                    showTimeInput
-                    locale="pl"
-                    className="form-control"
-                />
-
-                <Form.Group className="mb-3" controlId="formObservationDescription">
-                    <Form.Label>Opis</Form.Label>
-                    <Form.Control as="textarea" rows={4} value={description} onChange={handleDescriptionChange} />
-                </Form.Group>
-                <Form.Group controlId="formPictures" className="mb-3">
-                    <Form.Label>Zdjęcia</Form.Label>
-                    <Form.Control type="file" multiple onChange={handlePicturesChange} />
-                </Form.Group>
                 <Button variant="primary" type="submit">
-                    Dodaj
+                    Zapisz
                 </Button>
             </Form>
         </div>
@@ -166,16 +151,20 @@ function PolygonPointInputs({ pointIndex }) {
         newPolygon[pointIndex] = newPoint;
         setSelectedPolygon(newPolygon);
     }
-
-    function handlePolygonPointRemove() {
-        const newPolygon = selectedPolygon.filter((el, i) => i !== pointIndex);
-        setSelectedPolygon(newPolygon);
-    }
     return (
-        <InputGroup>
-            <Form.Control id={`polygonPoint${pointIndex}N`} type="text" value={selectedPolygon[pointIndex][0]} onChange={e => handlePolygonPointChange(e, 0)} placeholder="N" aria-label={`Punkt ${pointIndex+1} współrzędna N`} />
-            <Form.Control id={`polygonPoint${pointIndex}E`} type="text" value={selectedPolygon[pointIndex][1]} onChange={e => handlePolygonPointChange(e, 1)} placeholder="E" aria-label={`Punkt ${pointIndex + 1} współrzędna N`} />
-            <Button type="button" variant="danger" onClick={handlePolygonPointRemove}>&ndash;</Button>
-        </InputGroup>
+        <Row>
+            <Col>
+                <Form.Group className="mb-3" controlId={`polygonPoint${pointIndex}N`}>
+                    <Form.Label >N</Form.Label>
+                    <Form.Control type="text" value={selectedPolygon[pointIndex][0]} onChange={e => handlePolygonPointChange(e, 0)} />
+                </Form.Group>
+            </Col>
+            <Col>
+                <Form.Group className="mb-3" controlId={`polygonPoint${pointIndex}E`}>
+                    <Form.Label>E</Form.Label>
+                    <Form.Control type="text" value={selectedPolygon[pointIndex][1]} onChange={e => handlePolygonPointChange(e, 1)} />
+                </Form.Group>
+            </Col>
+        </Row>
     );
 }

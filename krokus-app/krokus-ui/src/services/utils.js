@@ -5,4 +5,18 @@ function deepParseFloat(val) {
         return parseFloat(val);
 }
 
-export { deepParseFloat };
+function deepToString(val) {
+    if (Array.isArray(val))
+        return val.map(deepToString);
+    else {
+        try {
+            return val.toString();
+        }
+        catch (e) {
+            return '';
+        }
+    }
+        
+}
+
+export { deepParseFloat, deepToString };
