@@ -1,17 +1,19 @@
 import { useContext } from 'react';
 import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from '../services/contexts';
 import { apiService } from '../services/api';
 
 export default function () {
     const { currentUser, setCurrentUser } = useContext(UserContext);
+    const navigate = useNavigate();
     let accountItems;
 
     async function logout() {
         await apiService.logout();
         setCurrentUser(null);
+        navigate('/login');
     }
     if (currentUser === null) {
         accountItems =
@@ -28,8 +30,9 @@ export default function () {
         accountItems =
             <>
             <NavDropdown title={currentUser.username} id="user-dropdown" className="ms-auto">
-                    <NavDropdown.Item>Profil</NavDropdown.Item>
-                    <NavDropdown.Item>Wyloguj</NavDropdown.Item>
+                <NavDropdown.Item>Profil</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/password-change">Zmień hasło</NavDropdown.Item>
+                <NavDropdown.Item onClick={logout}>Wyloguj</NavDropdown.Item>
                 </NavDropdown>
             </>;
     }

@@ -1,13 +1,58 @@
+import { parseJwt } from './utils';
 class ApiService {
     constructor() {
-        this.token = null;
+        this.token = this.loadToken();
+        this.currentUser = null;
         this.apiPrefix = "/api";
         this.nominatimPrefix = 'https://nominatim.openstreetmap.org/search?'
+    }
+
+    loadToken() {
+        const sessionToken = sessionStorage.getItem('token');
+        if (sessionToken === null) {
+            console.log('No token found.');
+            return null;
+        }
+        const tokenData = parseJwt(sessionToken);
+        if (tokenData.exp > Date.now() / 1000) {
+            console.log('Token still valid');
+            return sessionToken;
+        }
+        else {
+            console.log('Token expired.');
+            return null;
+        }
     }
 
     async authenticate(credentials) {
         const credentialsDto = { ...credentials };
         const url = this.apiPrefix + '/User/Login';
+        /*
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(credentialsDto),
+        };*/
+        //const token = await this.fetchJson(url, options);
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentialsDto),
+        };
+        const response = await fetch(url, options);
+        if (response.ok) {
+            this.token = await response.text();
+            sessionStorage.setItem('token', this.token);
+        }
+        else {
+            console.log(response);
+            throw new Error('Authentication failed');
+        }
+        //this.token = token;
+        //sessionStorage.setItem('token', this.token);
+        //await this.getCurrentUser();
+        /*
         const options = {
             method: 'POST',
             headers: {
@@ -18,15 +63,22 @@ class ApiService {
         const response = await fetch(url, options);
         if (response.ok) {
             this.token = await response.text();
+            sessionStorage.setItem('token', this.token);
         }
         else {
             console.log(response);
             throw new Error('Authentication failed');
-        }
+        }*/
     }
 
     async getCurrentUser() {
+        if (this.token === null) {
+            return null;
+        }
         const url = this.apiPrefix + '/User/Me';
+        this.currentUser = await this.fetchJson(url);
+        return this.currentUser;
+        /*
         const options = {
             method: 'GET',
             headers: {
@@ -42,9 +94,31 @@ class ApiService {
             console.log(response);
             throw new Error('Could not fetch the current user');
         }
+        */
     }
     async logout() {
         this.token = null;
+        this.currentUser = null;
+        sessionStorage.removeItem('token');
+    }
+
+    async register(registerData) {
+        const url = this.apiPrefix + '/User/register';
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(registerData),
+        }
+        const response = await this.fetchJson(url, options);
+        return response;
+    }
+
+    async changePassword(passwordData) {
+        const url = this.apiPrefix + '/User/ChangePassword';
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(passwordData),
+        }
+        await this.fetchJson(url, options);
     }
 
     async getObservations(params) {
@@ -60,7 +134,9 @@ class ApiService {
             }
         }
         const url = this.apiPrefix + '/Observations?' + searchParams.toString();
-        console.log(url);
+        const apiObservations = await this.fetchJson(url);
+        return this.prepareObservations(apiObservations);
+        /*
         const options = {
             headers: {
                 'Content-Type': 'application/json',
@@ -74,11 +150,14 @@ class ApiService {
         else {
             console.log(response);
             throw new Error('Could not fetch observations');
-        }
+        }*/
     }
 
     async getObservation(id) {
         const url = this.apiPrefix + '/Observations/' + id;
+        const apiObsesrvation = await this.fetchJson(url);
+        return this.prepareObservation(apiObsesrvation);
+        /*
         const options = {
             headers: {
                 'Content-Type': 'application/json',
@@ -93,7 +172,7 @@ class ApiService {
         else {
             console.log(response);
             throw new Error('Could not fetch the observation');
-        }
+        }*/
     }
 
     async getConfirmationsOfObservation(observationId) {
@@ -101,12 +180,12 @@ class ApiService {
         const searchParams = new URLSearchParams({ observationId: observationId });
         const url = this.apiPrefix + '/Confirmations?' + searchParams.toString();
         console.log(url);
-        return this.fetchJson(url);
+        return await this.fetchJson(url);
     }
 
     async getConfirmation(id) {
         const url = this.apiPrefix + '/Confirmations/' + id;
-        return this.fetchJson(url);
+        return await this.fetchJson(url);
     }
 
     async postObservation(observation) {

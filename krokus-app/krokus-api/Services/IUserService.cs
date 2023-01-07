@@ -5,7 +5,7 @@ namespace krokus_api.Services
 {
     public interface IUserService
     {
-        public Task<string> Register(RegisterDto request);
+        public Task<UserDto> Register(RegisterDto request);
 
         public Task<string> Login(LoginDto request);
         public Task<UserDto> GetCurrentUser();

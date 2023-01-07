@@ -32,7 +32,9 @@ export default function ObservationSearch() {
             userId: currentUser.id
         }
         const savedConfirmation = await apiService.postConfirmation(confirmation);
-        await apiService.postPictures(savedConfirmation.id, files);
+        if (files.length > 0) {
+            await apiService.postPictures(savedConfirmation.id, files);
+        }
         navigate(`/map/observations/${observationId}`);
     }
     function handleDescriptionChange(e) {

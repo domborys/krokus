@@ -3,6 +3,7 @@ using krokus_api.Consts;
 using krokus_api.Data;
 using krokus_api.Dtos;
 using krokus_api.Models;
+using krokusapi.Migrations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +33,7 @@ namespace krokus_api.Services
             _context = context;
         }
 
-        public async Task<string> Register(RegisterDto request)
+        public async Task<UserDto> Register(RegisterDto request)
         {
             var userByEmail = await _userManager.FindByEmailAsync(request.Email);
             var userByUsername = await _userManager.FindByNameAsync(request.Username);
@@ -49,14 +50,21 @@ namespace krokus_api.Services
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
-            await _userManager.AddToRoleAsync(user, Roles.User);
-
             if (!result.Succeeded)
             {
-                throw new ArgumentException($"Unable to register user {request.Username} errors: {GetErrorsText(result.Errors)}");
+                throw new ArgumentException($"Unable to register user {request.Username}. Errors: {GetErrorsText(result.Errors)}");
+            }
+            var roleResult = await _userManager.AddToRoleAsync(user, Roles.User);
+            if (!roleResult.Succeeded)
+            {
+                throw new ArgumentException($"Unable to add user {request.Username} to role User. Errors: {GetErrorsText(result.Errors)}");
             }
 
-            return await Login(new LoginDto { Username = request.Email, Password = request.Password });
+            var savedUser = await _userManager.FindByNameAsync(request.Username);
+            var savedRoles = await _userManager.GetRolesAsync(savedUser);
+
+            //return await Login(new LoginDto { Username = request.Email, Password = request.Password });
+            return EntityToDto(savedUser, savedRoles);
         }
 
         public async Task<string> Login(LoginDto request)

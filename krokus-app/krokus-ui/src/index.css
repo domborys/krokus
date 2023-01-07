@@ -16,6 +16,10 @@ code {
     max-width:320px;
 }
 
+.register-container {
+    max-width: 460px;
+}
+
 .layout-container{
     height:100vh;
     display:flex;

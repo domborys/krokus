@@ -1,4 +1,5 @@
-﻿using krokus_api.Consts;
+﻿using Azure;
+using krokus_api.Consts;
 using krokus_api.Dtos;
 using krokus_api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -38,9 +39,9 @@ namespace krokus_api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterDto request)
         {
-            var response = await _authenticationService.Register(request);
-
-            return Ok(response);
+            var createdUser = await _authenticationService.Register(request);
+            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+            //return Ok(response);
         }
 
         [HttpGet("Me")]
@@ -74,7 +75,7 @@ namespace krokus_api.Controllers
             var result = await _authenticationService.ChangePassword(passwordChangeDto);
             if (result.Succeeded)
             {
-                return Ok();
+                return NoContent();
             }
             else
             {
