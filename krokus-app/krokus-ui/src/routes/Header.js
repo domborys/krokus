@@ -30,8 +30,9 @@ export default function () {
         accountItems =
             <>
             <NavDropdown title={currentUser.username} id="user-dropdown" className="ms-auto">
-                <NavDropdown.Item>Profil</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/password-change">Zmień hasło</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to={`/user-search`}>Użytkownicy</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to={`/Users/${currentUser.id}`}>Profil</NavDropdown.Item>
+                <NavDropdown.Item  >Zmień hasło</NavDropdown.Item>
                 <NavDropdown.Item onClick={logout}>Wyloguj</NavDropdown.Item>
                 </NavDropdown>
             </>;

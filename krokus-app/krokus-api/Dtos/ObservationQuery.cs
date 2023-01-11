@@ -12,6 +12,7 @@
         public double? Xcenter { get; set; }
         public double? Ycenter { get; set; }
         public double? Distance { get; set; }
+        public string? UserId { get; set; }
 
     }
 }

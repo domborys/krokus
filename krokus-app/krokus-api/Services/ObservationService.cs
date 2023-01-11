@@ -49,6 +49,10 @@ namespace krokus_api.Services
             {
                 query = query.Where(obs => obs.Title.Contains(queryData.Title));
             }
+            if (queryData.UserId is not null)
+            {
+                query = query.Where(obs => obs.UserId == queryData.UserId);
+            }
             query = AddBboxToQuery(queryData, query);
             query = AddDistanceToQuery(queryData, query);
             var source = query.Include(obs => obs.Tags).Include(obs => obs.User).Select(obs => new ObservationDto

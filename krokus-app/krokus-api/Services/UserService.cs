@@ -141,12 +141,34 @@ namespace krokus_api.Services
                 Email = u.Email,
                 Role = u.Roles.FirstOrDefault()
             }).ToListAsync();
-            /*
-            return await _userManager.Users.Select(u => new UserDto() {
+            
+        }
+
+        public async Task<PaginatedList<UserDto>> FindWithQuery(UserQuery queryData)
+        {
+            var query = _context.Users.Select(u => new
+            {
                 Id = u.Id,
                 Username = u.UserName,
-                Email=u.Email
-            }).ToListAsync();*/
+                Email = u.Email,
+                Roles = (from ur in _context.UserRoles
+                         join r in _context.Roles on ur.RoleId equals r.Id
+                         where ur.UserId == u.Id
+                         select r.Name).ToList()
+
+            });
+            if (queryData.Username is not null)
+            {
+                query = query.Where(user => user.Username.Contains(queryData.Username));
+            }
+            var source = query.Select(u => new UserDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Email = u.Email,
+                Role = u.Roles.FirstOrDefault()
+            });
+            return await PaginatedList<UserDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
         }
 
         public async Task<IdentityResult> ChangePassword(PasswordChangeDto passwordChangeRequest)

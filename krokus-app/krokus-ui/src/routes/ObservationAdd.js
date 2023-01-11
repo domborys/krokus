@@ -63,7 +63,9 @@ export default function ObservationSearch() {
         observation.confirmations = [confirmation];
         const savedObservation = await apiService.postObservation(observation);
         const confirmationId = savedObservation.confirmations[0].id;
-        await apiService.postPictures(confirmationId, files);
+        if (files.length > 0) {
+            await apiService.postPictures(confirmationId, files);
+        }
         //console.log('savedObservation',savedObservation);
         navigate(`/map/observations/${savedObservation.id}`);
     }

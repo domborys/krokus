@@ -5,6 +5,8 @@ import Register from './Register';
 import PasswordChange from './PasswordChange';
 import Map from './Map';
 import Header from './Header';
+import UserProfile from './UserProfile';
+import UserSearch from './UserSearch';
 import ObservationSearch from './ObservationSearch';
 import { UserContext } from '../services/contexts';
 import "react-datepicker/dist/react-datepicker.css";
@@ -48,6 +50,8 @@ export default function Root() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/password-change" element={<PasswordChange />} />
+                        <Route path="/users/:id" element={<UserProfile />} />
+                        <Route path="/user-search" element={<UserSearch />} />
                     </Routes>
                 </div>
                 

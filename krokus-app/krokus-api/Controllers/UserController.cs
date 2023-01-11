@@ -56,6 +56,13 @@ namespace krokus_api.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        [Authorize(Policy = Policies.HasModeratorRights)]
+        public async Task<ActionResult<PaginatedList<UserDto>>> GetUsers([FromQuery] UserQuery query)
+        {
+            return await _authenticationService.FindWithQuery(query);
+        }
+
         [HttpGet("All")]
         [Authorize(Policy = Policies.HasModeratorRights)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserDto>))]
@@ -115,7 +122,7 @@ namespace krokus_api.Controllers
         public async Task<ActionResult> SetUserRole(string id, [FromBody] SetRoleDto setRoleDto)
         {
             await _authenticationService.SetUserRole(id, setRoleDto.Role);
-            return Ok();
+            return NoContent();
         }
     }
 }

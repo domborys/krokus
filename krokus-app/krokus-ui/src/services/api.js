@@ -27,12 +27,6 @@ class ApiService {
     async authenticate(credentials) {
         const credentialsDto = { ...credentials };
         const url = this.apiPrefix + '/User/Login';
-        /*
-        const options = {
-            method: 'POST',
-            body: JSON.stringify(credentialsDto),
-        };*/
-        //const token = await this.fetchJson(url, options);
         const options = {
             method: 'POST',
             headers: {
@@ -49,26 +43,7 @@ class ApiService {
             console.log(response);
             throw new Error('Authentication failed');
         }
-        //this.token = token;
-        //sessionStorage.setItem('token', this.token);
-        //await this.getCurrentUser();
-        /*
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type':'application/json',
-            },
-            body: JSON.stringify(credentialsDto),
-        };
-        const response = await fetch(url, options);
-        if (response.ok) {
-            this.token = await response.text();
-            sessionStorage.setItem('token', this.token);
-        }
-        else {
-            console.log(response);
-            throw new Error('Authentication failed');
-        }*/
+
     }
 
     async getCurrentUser() {
@@ -78,23 +53,6 @@ class ApiService {
         const url = this.apiPrefix + '/User/Me';
         this.currentUser = await this.fetchJson(url);
         return this.currentUser;
-        /*
-        const options = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + this.token,
-            },
-        };
-        const response = await fetch(url, options);
-        if (response.ok) {
-            return await response.json();
-        }
-        else {
-            console.log(response);
-            throw new Error('Could not fetch the current user');
-        }
-        */
     }
     async logout() {
         this.token = null;
@@ -122,7 +80,7 @@ class ApiService {
     }
 
     async getObservations(params) {
-        
+        /*
         const searchParams = new URLSearchParams();
         for (const name in params) {
             const value = params[name];
@@ -134,45 +92,18 @@ class ApiService {
             }
         }
         const url = this.apiPrefix + '/Observations?' + searchParams.toString();
+        */
+        const url = this.apiPrefix + '/Observations?' + paramsToUrl(params);
+        console.log(url);
         const apiObservations = await this.fetchJson(url);
+        console.log(apiObservations);
         return this.prepareObservations(apiObservations);
-        /*
-        const options = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
-        const response = await fetch(url, options);
-        if (response.ok) {
-            const result = await response.json();
-            return this.prepareObservations(result);
-        }
-        else {
-            console.log(response);
-            throw new Error('Could not fetch observations');
-        }*/
     }
 
     async getObservation(id) {
         const url = this.apiPrefix + '/Observations/' + id;
         const apiObsesrvation = await this.fetchJson(url);
         return this.prepareObservation(apiObsesrvation);
-        /*
-        const options = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
-        const response = await fetch(url, options);
-        console.log(response);
-        if (response.ok) {
-            const result = await response.json();
-            return this.prepareObservation(result);
-        }
-        else {
-            console.log(response);
-            throw new Error('Could not fetch the observation');
-        }*/
     }
 
     async getConfirmationsOfObservation(observationId) {
@@ -185,6 +116,11 @@ class ApiService {
 
     async getConfirmation(id) {
         const url = this.apiPrefix + '/Confirmations/' + id;
+        return await this.fetchJson(url);
+    }
+
+    async getConfirmations(params) {
+        const url = this.apiPrefix + '/Confirmations?' + paramsToUrl(params);
         return await this.fetchJson(url);
     }
 
@@ -302,6 +238,27 @@ class ApiService {
         return this.transformNominatimResponse(response);
     }
 
+    async getUser(id) {
+        const url = this.apiPrefix + '/User/' + id;
+        const user = await this.fetchJson(url);
+        return user;
+    }
+
+    async getUsers(params) {
+        const url = this.apiPrefix + '/User?' + paramsToUrl(params);
+        return await this.fetchJson(url);
+    }
+
+    async putUserRole(userId, role) {
+        const url = this.apiPrefix + '/User/' + userId + '/Role';
+        const body = { role };
+        const options = {
+            method: 'PUT',
+            body: JSON.stringify(body),
+        }
+        await this.fetchJson(url, options);
+    }
+
     async fetchJson(url, options = {}, sendToken = true) {
         let headers = {
             'Content-Type': 'application/json',
@@ -371,6 +328,20 @@ class ApiService {
         return response.map(place => this.transformNominatimPlace(place));
     }
 };
+
+function paramsToUrl(params) {
+    const searchParams = new URLSearchParams();
+    for (const name in params) {
+        const value = params[name];
+        if (Array.isArray(value)) {
+            value.forEach(el => searchParams.append(name, el));
+        }
+        else {
+            searchParams.append(name, value);
+        }
+    }
+    return searchParams.toString();
+}
 
 function geoToLeaflet(geoJson) {
     if (!geoJson) {

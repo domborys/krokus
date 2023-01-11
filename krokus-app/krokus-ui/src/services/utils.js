@@ -29,6 +29,15 @@ function isValidEmail(email) {
     return email.match(regex);
 }
 
+function rolePrettyName(role) {
+    const roles = {
+        user: 'użytkownik',
+        moderator: 'moderator',
+        admin: 'administrator'
+    };
+    return roles[role.toLowerCase()];
+}
+
 //https://stackoverflow.com/a/38552302
 function parseJwt(token) {
     var base64Url = token.split('.')[1];
@@ -40,4 +49,4 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-export { deepParseFloat, deepToString, isValidPassword, isValidEmail, parseJwt };
+export { deepParseFloat, deepToString, isValidPassword, isValidEmail, parseJwt, rolePrettyName };
