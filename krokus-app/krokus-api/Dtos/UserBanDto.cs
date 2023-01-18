@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace krokus_api.Models
+﻿namespace krokus_api.Dtos
 {
-    public class User : IdentityUser
+    public class UserBanDto
     {
         public bool PermanentlyBanned { get; set; } = false;
         public DateTime? BannedUntil { get; set; }

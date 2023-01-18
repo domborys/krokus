@@ -14,6 +14,7 @@ namespace krokus_api.Services
         public Task<UserDto?> FindById(string id);
         public Task<IdentityResult> ChangePassword(PasswordChangeDto passwordChangeRequest);
         public Task SetUserRole(string userId, string newRole);
+        public Task SetUserBan(string userId, UserBanDto banDto);
         public Task CreateAdminIfDoesntExist();
         public Task CreateRoles();
         public Task<bool> DeleteUser(string id);

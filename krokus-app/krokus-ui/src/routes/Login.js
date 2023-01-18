@@ -2,6 +2,7 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
+import Stack from 'react-bootstrap/Stack';
 import { useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { apiService } from '../services/api';
@@ -44,7 +45,7 @@ export default function Login() {
     }
 
     const errorMessage =
-        <Alert variant="danger">
+        <Alert variant="danger" className="my-3">
             Nieprawidłowa nazwa użytkownika lub hasło.
         </Alert>;
     const registerSuccessAlert =
@@ -57,6 +58,7 @@ export default function Login() {
         </Alert>;
     return (
         <Container className="login-container mt-5">
+            <h1 className="h2 mb-3">Logowanie</h1>
             {registerSuccess && registerSuccessAlert}
             {passwordChangeSuccess && passwordChangeSuccessAlert}
             <Form onSubmit={handleSubmit } action="#">
@@ -68,10 +70,12 @@ export default function Login() {
                     <Form.Label>Hasło</Form.Label>
                     <Form.Control type="password" value={password} onChange={handlePasswordChange} />
                 </Form.Group>
-                <Button variant="primary" type="submit">
-                    Zaloguj
-                </Button>
                 {errorText !== null && errorMessage}
+                <Stack direction="horizontal" className="justify-content-end">
+                    <Button variant="primary" type="submit">
+                        Zaloguj
+                    </Button>
+                </Stack>
             </Form>
         </Container>
     );

@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from '../services/contexts';
@@ -29,7 +30,7 @@ export default function () {
     else {
         accountItems =
             <>
-            <NavDropdown title={currentUser.username} id="user-dropdown" className="ms-auto">
+            <NavDropdown title={currentUser.username} id="user-dropdown">
                 <NavDropdown.Item as={Link} to={`/user-search`}>Użytkownicy</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to={`/Users/${currentUser.id}`}>Profil</NavDropdown.Item>
                 <NavDropdown.Item  >Zmień hasło</NavDropdown.Item>
@@ -38,17 +39,21 @@ export default function () {
             </>;
     }
     return (
-        <Nav className="border-bottom">
-            <Nav.Item>
-                <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
-            </Nav.Item>
-            {currentUser !== null &&
+        <Navbar bg="primary" variant="dark" className="py-1">
+            <Navbar.Brand as={Link} to="/map" className="ms-2">Krokus</Navbar.Brand>
+            <Nav>
                 <Nav.Item>
-                    <Nav.Link as={Link} to="/map/observations-add">Dodaj obserwację</Nav.Link>
+                    <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
                 </Nav.Item>
-
-            }
-            {accountItems}
-        </Nav>
+                {currentUser !== null &&
+                    <Nav.Item>
+                        <Nav.Link as={Link} to="/map/observations-add">Dodaj obserwację</Nav.Link>
+                    </Nav.Item>
+                }
+            </Nav>
+            <Nav className="ms-auto me-2">
+                {accountItems}
+            </Nav>
+        </Navbar>
     );
 }

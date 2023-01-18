@@ -3,29 +3,37 @@ import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import CloseButton from 'react-bootstrap/CloseButton';
+import Stack from 'react-bootstrap/Stack';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContext } from '../services/contexts';
 import { apiService } from '../services/api';
+import PanelHeader from '../components/PanelHeader';
 export default function PlaceSearch() {
     const navigate = useNavigate();
     const { selectedPlace, setSelectedPlace, placeName, setPlaceName } = useContext(MapContext);
+    const [prevPlace, setPrevPlace] = useState(selectedPlace);
     const [places, setPlaces] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
+    const [noPlacesFound, setNoPlacesFound] = useState(false);
+    const anyPlaceSelected = selectedPlace && places.some(p => p.place_id === selectedPlace.place_id);
+
+    /*
     useEffect(() => {
         loadPlaces()
-    }, [])
+    }, [])*/
 
     async function loadPlaces() {
         try {
             const places = await apiService.getPlace(placeName);
             setPlaces(places);
             setErrorMessage('');
+            const noPlaces = places.length === 0;
+            setNoPlacesFound(noPlaces);
         }
         catch (e) {
             console.error(e);
-            setErrorMessage('Wystąpił błąd podczas pobierania miejscowości');
+            setErrorMessage('Wystąpił błąd podczas pobierania miejscowości.');
         }
     }
     function handlePlaceClick(place) {
@@ -40,9 +48,11 @@ export default function PlaceSearch() {
         setPlaceName(e.target.value);
     }
 
-    function handleCloseButtonClick(e) {
-        navigate('/map');
+    function handleBackClick() {
+        setSelectedPlace(prevPlace);
+        navigate(-1);
     }
+
     function handleSelectClick(){
         navigate('/map');
     }
@@ -53,10 +63,8 @@ export default function PlaceSearch() {
     );
     return (
         <>
-            <div className="d-flex align-items-center mt-2 mb-2 border-bottom">
-                <h2>Znalezione miejscowości</h2>
-                <CloseButton aria-label="Zamknij wyniki" onClick={handleCloseButtonClick} className="ms-auto" />
-            </div>
+            <PanelHeader>Wyszukiwanie miejscowości</PanelHeader>
+            <Form.Label htmlFor="formPlaceName">Nazwa miejscowości</Form.Label>
             <InputGroup className="mb-3">
                 <Form.Control id="formPlaceName" value={placeName} onChange={handlePlaceNameChange} aria-label="Miejscowość" />
                 <Button variant="primary" onClick={handlePlaceSearchClick}>
@@ -64,12 +72,21 @@ export default function PlaceSearch() {
                 </Button>
             </InputGroup>
             {errorMessage && <Alert variant="danger">errorMessage</Alert>}
+            {noPlacesFound && <div>Nie znaleziono miejscowości.</div> }
             <ListGroup>
                 {items}
             </ListGroup>
-            <Button variant="primary" onClick={handleSelectClick}>
-                Wybierz
-            </Button>
+            
+                <Stack direction="horizontal" className="my-3">
+                    <Button variant="secondary" onClick={handleBackClick}>
+                        Powrót
+                </Button>
+                {anyPlaceSelected &&
+                    <Button variant="primary" className="ms-auto" onClick={handleSelectClick}>
+                        Wybierz
+                    </Button>}
+                </Stack>
+            
         </>
 
     );

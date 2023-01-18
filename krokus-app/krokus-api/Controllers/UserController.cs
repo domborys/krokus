@@ -124,5 +124,13 @@ namespace krokus_api.Controllers
             await _authenticationService.SetUserRole(id, setRoleDto.Role);
             return NoContent();
         }
+
+        [HttpPut("{id}/Ban")]
+        [Authorize(Policy = Policies.HasModeratorRights)]
+        public async Task<ActionResult> SetUserBan(string id, [FromBody] UserBanDto userBanDto)
+        {
+            await _authenticationService.SetUserBan(id, userBanDto);
+            return NoContent();
+        }
     }
 }

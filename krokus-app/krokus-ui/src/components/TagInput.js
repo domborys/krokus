@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 import CloseButton from 'react-bootstrap/CloseButton';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 const emptyTags = [];
 
@@ -36,7 +37,7 @@ export default function TagInput({ initialTags = emptyTags, label, onTagsChange 
     }
     const tagElements = tags.map(tag =>
         <Badge bg="secondary" key={tag} className="me-1 align-middle">
-            {tag}
+            <span>{tag}</span>
             <CloseButton variant="white" aria-label="Remove tag" onClick={e => removeTag(tag, e) } className="ms-2" />
         </Badge>
     );
@@ -46,10 +47,13 @@ export default function TagInput({ initialTags = emptyTags, label, onTagsChange 
             <div>
                 {tagElements}
             </div>
-            <div className="d-flex mt-2">
-                <Form.Control type="text" value={typedTag} onChange={handleTypedTagChange} className="flex-fill" />
-                <Button type="Button" onClick={addTag} className="ms-2">Dodaj</Button>
-            </div>
+            
+            <InputGroup className="mt-1">
+                <Form.Control value={typedTag} onChange={handleTypedTagChange} />
+                <Button variant="primary" onClick={addTag}>
+                    Dodaj
+                </Button>
+            </InputGroup>
         </Form.Group>    
     );
 }

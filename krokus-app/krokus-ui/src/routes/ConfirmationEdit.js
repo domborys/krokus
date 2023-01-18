@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import RemovablePicture from '../components/RemovablePicture';
 import { apiService } from '../services/api';
 import { useNavigate, useParams } from 'react-router-dom'
+import Stack from 'react-bootstrap/Stack';
 export default function ObservationSearch() {
     const [confirmed, setConfirmed] = useState('');
     const [description, setDescription] = useState('');
@@ -66,6 +67,9 @@ export default function ObservationSearch() {
         const updatedOldPictures = oldPictures.filter(p => p.id !== deletedPicture.id);
         setOldPictures(updatedOldPictures);
     }
+    function handleCancel() {
+        navigate(`/map/observations/${observationId}`);
+    }
     const removablePictures = oldPictures.map(picture => <RemovablePicture key={picture.id} picture={picture} onDelete={handlePictureDelete} />);
     return (
         <div>
@@ -102,9 +106,14 @@ export default function ObservationSearch() {
                     <Form.Label>Dodaj zdjęcia</Form.Label>
                     <Form.Control type="file" multiple onChange={handlePicturesChange} />
                 </Form.Group>
-                <Button variant="primary" type="submit">
-                    Dodaj
-                </Button>
+                <Stack direction="horizontal" gap={2}>
+                    <Button variant="secondary" type="button" onClick={handleCancel} className="ms-auto">
+                        Anuluj
+                    </Button>
+                    <Button variant="primary" type="submit">
+                        Zapisz
+                    </Button>
+                </Stack>
             </Form>
         </div>
 

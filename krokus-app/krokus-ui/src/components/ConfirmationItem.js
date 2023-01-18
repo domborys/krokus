@@ -10,7 +10,7 @@ export default function ConfirmationItem({ confirmation, onConfirmationDeleted =
     const { currentUser } = useContext(UserContext);
     const [isConfirmationDelete, setConfirmationDelete] = useState(false);
     const arePictures = confirmation.pictures.length > 0;
-    const canEdit = currentUser && confirmation && (currentUser.id === confirmation.userId || currentUser.role === 'admin' || currentUser.role === 'moderator');
+    const canEdit = currentUser && confirmation && (currentUser.id === confirmation.userId || currentUser.role === 'Admin' || currentUser.role === 'Moderator');
     function handleDeleteClick() {
         setConfirmationDelete(true);
     }

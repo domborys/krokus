@@ -77,14 +77,12 @@ export default function Map() {
         setPrevSearchParams(params);
         const result = await apiService.getObservations(params);
         setObservations(result);
-        console.log(result);
         navigate('/map/results');
     }
 
     async function reloadObservations() {
         const result = await apiService.getObservations(prevSearchParams);
         setObservations(result);
-        console.log(result);
     } 
 
     function handleObservationClick(observationId) {

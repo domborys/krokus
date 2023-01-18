@@ -13,7 +13,7 @@ code {
 }
 
 .login-container{
-    max-width:320px;
+    max-width:380px;
 }
 
 .register-container {
@@ -54,6 +54,20 @@ code {
 .enlarged-picture{
     max-width:100%;
     max-height:80vh;
+}
+
+.arrow-back-button {
+    display:block;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+.arrow-back-button > * {
+    display:block;
 }
 
 .tile-picture-button {

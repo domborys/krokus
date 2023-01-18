@@ -63,7 +63,6 @@ namespace krokus_api.Services
             var savedUser = await _userManager.FindByNameAsync(request.Username);
             var savedRoles = await _userManager.GetRolesAsync(savedUser);
 
-            //return await Login(new LoginDto { Username = request.Email, Password = request.Password });
             return EntityToDto(savedUser, savedRoles);
         }
 
@@ -80,7 +79,14 @@ namespace krokus_api.Services
             {
                 throw new ArgumentException($"Unable to authenticate user {request.Username}");
             }
-
+            if(user.PermanentlyBanned)
+            {
+                throw new ArgumentException($"User is banned");
+            }
+            if (user.BannedUntil is not null && user.BannedUntil > DateTime.Now)
+            {
+                throw new ArgumentException($"User is banned until {user.BannedUntil}");
+            }
             var authClaims = new List<Claim>
             {
                 new(ClaimTypes.Name, user.UserName),
@@ -103,13 +109,15 @@ namespace krokus_api.Services
             var user = _httpContextAccessor.HttpContext?.User;
             var dbuser = await _userManager.GetUserAsync(user);
             var roles = await _userManager.GetRolesAsync(dbuser);
+            return EntityToDto(dbuser, roles);
+            /*
             return new UserDto()
             {
                 Id = dbuser.Id,
                 Username = dbuser.UserName,
                 Email = dbuser.Email,
                 Role = roles.FirstOrDefault(),
-            };
+            };*/
         }
 
         public async Task<UserDto?> FindById(string id)
@@ -130,6 +138,8 @@ namespace krokus_api.Services
                 Id = u.Id,
                 Username = u.UserName,
                 Email = u.Email,
+                PermanentlyBanned = u.PermanentlyBanned,
+                BannedUntil = u.BannedUntil,
                 Roles = (from ur in _context.UserRoles
                         join r in _context.Roles on ur.RoleId equals r.Id
                         where ur.UserId == u.Id
@@ -139,7 +149,9 @@ namespace krokus_api.Services
                 Id = u.Id,
                 Username = u.Username,
                 Email = u.Email,
-                Role = u.Roles.FirstOrDefault()
+                Role = u.Roles.FirstOrDefault(),
+                PermanentlyBanned = u.PermanentlyBanned,
+                BannedUntil = u.BannedUntil,
             }).ToListAsync();
             
         }
@@ -151,6 +163,8 @@ namespace krokus_api.Services
                 Id = u.Id,
                 Username = u.UserName,
                 Email = u.Email,
+                PermanentlyBanned = u.PermanentlyBanned,
+                BannedUntil = u.BannedUntil,
                 Roles = (from ur in _context.UserRoles
                          join r in _context.Roles on ur.RoleId equals r.Id
                          where ur.UserId == u.Id
@@ -166,7 +180,9 @@ namespace krokus_api.Services
                 Id = u.Id,
                 Username = u.Username,
                 Email = u.Email,
-                Role = u.Roles.FirstOrDefault()
+                Role = u.Roles.FirstOrDefault(),
+                PermanentlyBanned = u.PermanentlyBanned,
+                BannedUntil = u.BannedUntil,
             });
             return await PaginatedList<UserDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
         }
@@ -187,6 +203,14 @@ namespace krokus_api.Services
             var roles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, roles.Except(newRoleList));
             await _userManager.AddToRoleAsync(user, newRole);
+        }
+
+        public async Task SetUserBan(string userId, UserBanDto banDto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            user.BannedUntil = banDto.BannedUntil;
+            user.PermanentlyBanned = banDto.PermanentlyBanned;
+            await _userManager.UpdateAsync(user);
         }
 
         public async Task CreateAdminIfDoesntExist()
@@ -269,7 +293,7 @@ namespace krokus_api.Services
             }
         }
 
-        private UserDto EntityToDto(User dbuser, IEnumerable<string> roles)
+        private static UserDto EntityToDto(User dbuser, IEnumerable<string> roles)
         {
             return new UserDto()
             {
@@ -277,6 +301,8 @@ namespace krokus_api.Services
                 Username = dbuser.UserName,
                 Email = dbuser.Email,
                 Role = roles.FirstOrDefault(),
+                BannedUntil = dbuser.BannedUntil,
+                PermanentlyBanned = dbuser.PermanentlyBanned,
             };
         }
     }

@@ -11,8 +11,8 @@ export default function RemovablePicture({ picture, onDelete }) {
         <ListGroup.Item>
             <Row xs={2}>
                 <PictureTile picture={picture} />
-                <Col className="h-100">
-                    <Button type="button" variant="danger" onClick={handlePictureDelete}>&ndash;</Button>
+                <Col className="align-self-stretch d-flex justify-content-center align-items-center">
+                    <Button type="button" variant="danger" onClick={handlePictureDelete}>Usuń</Button>
                 </Col>
             </Row>
         </ListGroup.Item>

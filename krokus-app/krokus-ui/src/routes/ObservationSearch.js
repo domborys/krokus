@@ -8,8 +8,9 @@ import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import CloseButton from 'react-bootstrap/CloseButton';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Stack from 'react-bootstrap/Stack';
 import { MapContext } from '../services/contexts';
-
+import DistanceRange from '../components/DistanceRange';
 import { useNavigate } from 'react-router-dom'
 export default function ObservationSearch({onSubmit}) {
     const { title, setTitle, tags, setTags, selectedPoint, setSelectedPoint, setPointSelection, selectedPointDistance, setSelectedPointDistance,
@@ -34,6 +35,9 @@ export default function ObservationSearch({onSubmit}) {
     }
     function handleDistanceChange(e) {
         setSelectedPointDistance(e.target.value);
+    }
+    function handleDistanceChange2(newValue) {
+        setSelectedPointDistance(newValue);
     }
     function handleAddFromMapClick(e) {
         setPointSelection(true);
@@ -62,14 +66,14 @@ export default function ObservationSearch({onSubmit}) {
     
     return (
         <div>
-            <h2>Szukaj obserwacji</h2>
+            <h1 className="h2 my-3">Szukaj obserwacji</h1>
             <Form onSubmit={handleSubmit} action="#">
                 <Form.Group className="mb-3" controlId="formObservationTitle">
                     <Form.Label>Tytuł</Form.Label>
                     <Form.Control type="text" value={title} onChange={handleTitleChange} />
                 </Form.Group>
                 <TagInput label="Tagi" initialTags={tags} onTagsChange={handleTagsChange} />
-                <div>Miejsce</div>
+                <h2 className="h6 mt-4 mb-2">Miejsce</h2>
                 <div>
                     <Form.Check type="radio" name="radioLocation" id="radioLocationAnywhere" value="anywhere" label="Gdziekolwiek" checked={locationType ==='anywhere'} onChange={handleLocationTypeChange} />
                     <Form.Check type="radio" name="radioLocation" id="radioLocationVisible" value="visible" label="Widoczny obszar" checked={locationType === 'visible'} onChange={handleLocationTypeChange} />
@@ -79,26 +83,28 @@ export default function ObservationSearch({onSubmit}) {
                 <Collapse in={isLocationDistance}>
                     <div>
                         <Card className="mt-3 mb-3">
-                            <Card.Header>Parametry</Card.Header>
+                            <Card.Header>Punkt i odległość</Card.Header>
                             <Card.Body>
+                                <h3 className="h6">Punkt</h3>
                                 <Button variant="primary" type="button" className="mb-2" onClick={handleAddFromMapClick}>Dodaj z mapy</Button>
                                 <Row>
                                     <Col>
                                         <Form.Group className="mb-3" controlId="formPointN">
-                                            <Form.Label >Współrzędna N</Form.Label>
+                                            <Form.Label className="mb-1">Współrzędna N</Form.Label>
                                             <Form.Control type="text" value={selectedPoint[0]} onChange={e => handleSelectedPointChange(e, 0)} />
                                         </Form.Group>
                                     </Col>
                                     <Col>
                                         <Form.Group className="mb-3" controlId="formPointE">
-                                            <Form.Label>Współrzędna E</Form.Label>
+                                            <Form.Label className="mb-1">Współrzędna E</Form.Label>
                                             <Form.Control type="text" value={selectedPoint[1]} onChange={e => handleSelectedPointChange(e, 1)} />
                                         </Form.Group>
                                     </Col>
                                 </Row>
                                 <Form.Group className="mb-3" controlId="formDistance">
-                                    <Form.Label>Odległość (km)</Form.Label>
-                                    <Form.Control type="text" value={selectedPointDistance} onChange={handleDistanceChange} />
+                                    <Form.Label className="fw-b">Odległość</Form.Label>
+                                    {/* <Form.Control type="text" value={selectedPointDistance} onChange={handleDistanceChange} /> */}
+                                    <DistanceRange value={selectedPointDistance} onChange={handleDistanceChange2} />
                                 </Form.Group>
                             </Card.Body>
                         </Card>
@@ -107,7 +113,14 @@ export default function ObservationSearch({onSubmit}) {
                 </Collapse>
                 <Collapse in={locationType === 'place'}>
                     <div>
-                    {selectedPlace &&
+                        <Form.Label htmlFor="selectedPlaceName">Nazwa miejscowości</Form.Label>
+                        <InputGroup>
+                            <Form.Control id="selectedPlaceName" value={selectedPlace ? selectedPlace.display_name : ''} readOnly className="bg-light" />
+                            <Button variant="primary" onClick={handlePlaceSearchClick}>
+                                Szukaj
+                            </Button>
+                        </InputGroup>
+                    {false && selectedPlace &&
                         <>
                             <Card className="d-flex flex-row align-items-center mt-3 mb-3 p-2">
                                 <div className="flex-fill">
@@ -117,7 +130,7 @@ export default function ObservationSearch({onSubmit}) {
                             </Card>
                         </>
                     }
-                    {!selectedPlace &&
+                    {false && !selectedPlace &&
                         <>
                             <Form.Label htmlFor="formPlaceName">Miejscowość</Form.Label>
                             <InputGroup className="mb-3">
@@ -130,9 +143,11 @@ export default function ObservationSearch({onSubmit}) {
                     }
                     </div>
                 </Collapse>
-                <Button variant="primary" type="submit">
-                    Szukaj
-                </Button>
+                <Stack direction="horizontal" className="justify-content-end my-3">
+                    <Button variant="primary" type="submit">
+                        Szukaj obserwacji
+                    </Button>
+                </Stack>
             </Form>
         </div>
         
