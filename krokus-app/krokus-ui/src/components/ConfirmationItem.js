@@ -6,6 +6,7 @@ import { apiService } from '../services/api';
 import ConfirmDelete from '../components/ConfirmDelete';
 import { Link } from "react-router-dom";
 import { UserContext } from '../services/contexts';
+import { formatDatetime } from '../services/utils';
 export default function ConfirmationItem({ confirmation, onConfirmationDeleted = () => { } }) {
     const { currentUser } = useContext(UserContext);
     const [isConfirmationDelete, setConfirmationDelete] = useState(false);
@@ -27,14 +28,17 @@ export default function ConfirmationItem({ confirmation, onConfirmationDeleted =
             <ConfirmDelete show={isConfirmationDelete} onDelete={handleDeleteConfirm} onCancel={handleDeleteCancel}>
                 Czy na pewno chcesz usunąć potwierdzenie <b>{confirmation.title}?</b>
             </ConfirmDelete>
-            <div className="border-bottom d-flex">
-                <div className={`${confirmation.isConfirmed ? 'text-success' : 'text-danger'}`}>
-                    {confirmation.isConfirmed ? 'Potwierdzam' : 'Nie potwierdzam'}
+            <div className="d-flex mb-2">
+                <div>
+                    <div className="fw-bold">{confirmation.username}</div>
+                    <div className={`${confirmation.isConfirmed ? 'text-success' : 'text-danger'}`}>
+                        {confirmation.isConfirmed ? 'Potwierdzam' : 'Nie potwierdzam'}
+                    </div>
                 </div>
-                <div className="ms-auto">{confirmation.dateTime}</div>
+                <div className="ms-auto">{formatDatetime(confirmation.dateTime)}</div>
                 {canEdit && 
-                    <Dropdown>
-                        <Dropdown.Toggle variant="outline-secondary" id="dropdown-basic" aria-label="Opcje">
+                    <Dropdown className="ms-2">
+                        <Dropdown.Toggle variant="outline-secondary" size="sm" aria-label="Opcje">
 
                         </Dropdown.Toggle>
 
@@ -45,7 +49,7 @@ export default function ConfirmationItem({ confirmation, onConfirmationDeleted =
                     </Dropdown>
                 }
             </div>
-            <div>{confirmation.username}</div>
+         
             <p>{confirmation.description}</p>
             {arePictures && <PictureTiles pictures={confirmation.pictures} /> }
         </ListGroup.Item>

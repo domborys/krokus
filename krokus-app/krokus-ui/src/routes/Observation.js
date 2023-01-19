@@ -1,14 +1,17 @@
 import ListGroup from 'react-bootstrap/ListGroup';
-import CloseButton from 'react-bootstrap/CloseButton';
+import Stack from 'react-bootstrap/Stack';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import ConfirmationItem from '../components/ConfirmationItem';
 import ConfirmDelete from '../components/ConfirmDelete';
+import PanelHeader from '../components/PanelHeader';
 import Badge from 'react-bootstrap/Badge';
 import { Link } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import { UserContext } from '../services/contexts';
+
 export default function Observation() {
     const navigate = useNavigate();
     const [observation, setObservation] = useState(null);
@@ -48,34 +51,48 @@ export default function Observation() {
         const newConfirmations = confirmations.filter(c => c.id !== confirmationId);
         setConfirmations(newConfirmations);
     }
-    const tags = observation && observation.tags.map(tag => <Badge bg="secondary" key={tag.name} className="me-1">{tag.name}</Badge>);
+    const tags = observation && observation.tags.map(tag => <Badge bg="secondary" key={tag.name} className="me-1 p-2">{tag.name}</Badge>);
     const confirmationItems = confirmations && confirmations.items.map(conf => <ConfirmationItem key={conf.id} confirmation={conf} onConfirmationDeleted={handleConfirmationDeleted} />)
     return (observation &&
         <>
-            <div className="d-flex align-items-center mt-2 mb-2 border-bottom">
-                <h2>{observation.title}</h2>
-                <CloseButton aria-label="Zamknij obserwację" onClick={handleCloseButtonClick} className="ms-auto" />
-            </div>
-        {canEdit && <div>
-            <Button type="button" as={Link} to={`/map/observations-edit/${observation.id}`} >Edytuj</Button>
-            <Button type="button" variant="danger" onClick={handleDeleteObservationClick} >Usuń</Button>
-        </div>}
-        <ConfirmDelete show={isObservationDelete} onDelete={handleDeleteConfirm} onCancel={handleDeleteCancel}>
-            Czy na pewno chcesz usunąć obserwację <b>{observation.title}?</b>
-        </ConfirmDelete>
-            <div>
-                <h5>Współrzędne</h5>
-            <div>N: {observation.location[0].toFixed(6)}, E: {observation.location[1].toFixed(6)}</div>
+        <PanelHeader>{observation.title}</PanelHeader>
+        <Stack direction="horizontal" className="flex-wrap">
+            <div className="flex-fill">
+                <div>
+                    <h2 className="h6 mb-0">Współrzędne</h2>
+                    <div>{observation.location[0].toFixed(6)}, {observation.location[1].toFixed(6)}</div>
+                </div>
+                <div className="mt-2 mb-3">
+                    {tags}
+                </div>
             </div>
             <div>
-                <h5>Tagi</h5>
-                <div>{tags}</div>
+                {canEdit &&
+                    <Dropdown>
+                        <Dropdown.Toggle variant="outline-secondary">
+                            Opcje
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item as={Link} to={`/map/observations-edit/${observation.id}`}>Edytuj</Dropdown.Item>
+                            <Dropdown.Item onClick={handleDeleteObservationClick}>Usuń</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                }
+                <ConfirmDelete show={isObservationDelete} onDelete={handleDeleteConfirm} onCancel={handleDeleteCancel}>
+                    Czy na pewno chcesz usunąć obserwację <b>{observation.title}?</b>
+                </ConfirmDelete>
             </div>
-            <div>
-            <h5>Potwierdzenia</h5>
-            <Button type="button" as={Link} to={`/map/confirmations-add?observationId=${observation.id}`}>
-                Dodaj
-            </Button>
+        </Stack>
+        
+            
+            <div className="border-top">
+            <h2 className="h5 mt-2 mb-0">Potwierdzenia</h2>
+            <Stack direction="horizontal" className="my-3">
+                <Button type="button" as={Link} to={`/map/confirmations-add?observationId=${observation.id}`}>
+                    Dodaj potwierdzenie
+                </Button>
+            </Stack>
+            
                 <ListGroup>
                     {confirmationItems}
                 </ListGroup>

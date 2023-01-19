@@ -3,6 +3,10 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Collapse from 'react-bootstrap/Collapse';
+import Card from 'react-bootstrap/Card';
+import Stack from 'react-bootstrap/Stack';
+import PanelHeader from '../components/PanelHeader';
+import PolygonPointInputs from '../components/PolygonPointInputs';
 import { useState, useContext, useEffect } from 'react';
 import TagInput from '../components/TagInput';
 import { MapContext } from '../services/contexts';
@@ -91,11 +95,15 @@ export default function ObservationEdit() {
         setSelectedPolygon(newPolygon);
         setPolygonSelection(true);
     }
+    function handleClearPolygonPointClick() {
+        setSelectedPolygon([]);
+        setPolygonSelection(true);
+    }
     
     const polygonInputs = selectedPolygon.map((point, index) => <PolygonPointInputs pointIndex={index} key={index} />);
     return (
         <div>
-            <h2>Edytuj obserwację</h2>
+            <PanelHeader>Edytuj obserwację</PanelHeader>
             <Form onSubmit={handleSubmit} action="#">
                 <Form.Group className="mb-3" controlId="formObservationTitle">
                     <Form.Label>Tytuł</Form.Label>
@@ -109,38 +117,53 @@ export default function ObservationEdit() {
                 </div>
                 <Collapse in={addLocationType === 'point'}>
                     <div>
-                        <Button variant="primary" type="button" className="mb-2" onClick={handleAddFromMapClick}>Dodaj z mapy</Button>
-                        <Row>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="formPointN">
-                                    <Form.Label >Współrzędna N</Form.Label>
-                                    <Form.Control type="text" value={selectedPoint[0]} onChange={e => handleSelectedPointChange(e, 0)} />
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <Form.Group className="mb-3" controlId="formPointE">
-                                    <Form.Label>Współrzędna E</Form.Label>
-                                    <Form.Control type="text" value={selectedPoint[1]} onChange={e => handleSelectedPointChange(e, 1)} />
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                        <Card className="mt-3 mb-3">
+                            <Card.Header>Lokalizacja</Card.Header>
+                            <Card.Body>
+                                <Button variant="primary" type="button" className="mb-2" onClick={handleAddFromMapClick}>Dodaj z mapy</Button>
+                                <Row>
+                                    <Col>
+                                        <Form.Group className="mb-3" controlId="formPointN">
+                                            <Form.Label >Współrzędna N</Form.Label>
+                                            <Form.Control type="text" value={selectedPoint[0]} onChange={e => handleSelectedPointChange(e, 0)} />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group className="mb-3" controlId="formPointE">
+                                            <Form.Label>Współrzędna E</Form.Label>
+                                            <Form.Control type="text" value={selectedPoint[1]} onChange={e => handleSelectedPointChange(e, 1)} />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </Card.Body>
+                        </Card>
                     </div>
                 </Collapse>
                 <Collapse in={addLocationType === 'polygon'}>
                     <div>
-                        {polygonInputs}
-                        <Button variant="primary" type="button" className="mb-2" onClick={handleAddPolygonPointClick}>Dodaj punkt</Button>
+                        <Card className="mt-3 mb-3">
+                            <Card.Header>Lokalizacja</Card.Header>
+                            <Card.Body>
+                                {polygonInputs}
+                                <Stack direction="horizontal" className="mt-2">
+                                    <Button variant="danger" type="button" onClick={handleClearPolygonPointClick}>Wyczyść</Button>
+                                    <Button variant="primary" type="button" className="ms-auto" onClick={handleAddPolygonPointClick}>Dodaj punkt</Button>
+                                </Stack>
+                            </Card.Body>
+                        </Card>
                     </div>
                 </Collapse>
-                <Button variant="primary" type="submit">
-                    Zapisz
-                </Button>
+                <Stack direction="horizontal" className="justify-content-end my-3">
+                    <Button variant="primary" type="submit">
+                        Zapisz
+                    </Button>
+                </Stack>
             </Form>
         </div>
 
     );
 }
-
+/*
 function PolygonPointInputs({ pointIndex }) {
     const { selectedPolygon, setSelectedPolygon } = useContext(MapContext);
 
@@ -167,4 +190,4 @@ function PolygonPointInputs({ pointIndex }) {
             </Col>
         </Row>
     );
-}
+}*/

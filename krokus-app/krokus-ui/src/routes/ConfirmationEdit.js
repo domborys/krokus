@@ -7,6 +7,7 @@ import RemovablePicture from '../components/RemovablePicture';
 import { apiService } from '../services/api';
 import { useNavigate, useParams } from 'react-router-dom'
 import Stack from 'react-bootstrap/Stack';
+import PanelHeader from '../components/PanelHeader';
 export default function ObservationSearch() {
     const [confirmed, setConfirmed] = useState('');
     const [description, setDescription] = useState('');
@@ -73,22 +74,24 @@ export default function ObservationSearch() {
     const removablePictures = oldPictures.map(picture => <RemovablePicture key={picture.id} picture={picture} onDelete={handlePictureDelete} />);
     return (
         <div>
-            <h2>Edytuj potwierdzenie</h2>
+            <PanelHeader>Edytuj potwierdzenie</PanelHeader>
             <Form onSubmit={handleSubmit} action="#">
                 <div className="mb-3">
                     <Form.Check type="radio" name="radioIsConfirmed" id="radioIsConfirmedYes" value="yes" label="Też widziałem obiekt" checked={confirmed === 'yes'} onChange={handleConfirmedChange} />
                     <Form.Check type="radio" name="radioIsConfirmed" id="radioIsConfirmedNo" value="no" label="Nie widziałem obiektu" checked={confirmed === 'no'} onChange={handleConfirmedChange} />
                 </div>
-                <div>Data {confirmed === 'no' && 'próby'} obserwacji</div>
-                <DatePicker
-                    selected={observationDate}
-                    onChange={(date) => setObservationDate(date)}
-                    timeInputLabel="Godzina:"
-                    dateFormat="dd.MM.yyyy HH:mm"
-                    showTimeInput
-                    locale="pl"
-                    className="form-control"
-                />
+                <Form.Group className="mb-3" controlId="observationDate">
+                    <Form.Label>Data {confirmed === 'no' && 'próby'} obserwacji</Form.Label>
+                    <DatePicker
+                        selected={observationDate}
+                        onChange={(date) => setObservationDate(date)}
+                        timeInputLabel="Godzina:"
+                        dateFormat="dd.MM.yyyy HH:mm"
+                        showTimeInput
+                        locale="pl"
+                        className="form-control"
+                    />
+                </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formObservationDescription">
                     <Form.Label>Opis</Form.Label>
@@ -107,10 +110,10 @@ export default function ObservationSearch() {
                     <Form.Control type="file" multiple onChange={handlePicturesChange} />
                 </Form.Group>
                 <Stack direction="horizontal" gap={2}>
-                    <Button variant="secondary" type="button" onClick={handleCancel} className="ms-auto">
+                    <Button variant="secondary" type="button" onClick={handleCancel}>
                         Anuluj
                     </Button>
-                    <Button variant="primary" type="submit">
+                    <Button variant="primary" type="submit" className="ms-auto">
                         Zapisz
                     </Button>
                 </Stack>

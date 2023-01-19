@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+
 function deepParseFloat(val) {
     if (Array.isArray(val))
         return val.map(deepParseFloat);
@@ -38,6 +40,10 @@ function rolePrettyName(role) {
     return roles[role.toLowerCase()];
 }
 
+function formatDatetime(isoDate) {
+    return format(new Date(isoDate), 'H:mm dd.MM.y');
+}
+
 //https://stackoverflow.com/a/38552302
 function parseJwt(token) {
     var base64Url = token.split('.')[1];
@@ -49,4 +55,4 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-export { deepParseFloat, deepToString, isValidPassword, isValidEmail, parseJwt, rolePrettyName };
+export { deepParseFloat, deepToString, isValidPassword, isValidEmail, parseJwt, rolePrettyName, formatDatetime };

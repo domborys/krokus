@@ -129,7 +129,7 @@ class ApiService {
         const observationToSend = {
             ...observation,
             location: pointLeafletToGeo(observation.location),
-            boundary: pointLeafletToGeo(observation.boundary),
+            boundary: polygonLeafletToGeo(observation.boundary),
         }
         const options = {
             method: 'POST',
@@ -146,7 +146,7 @@ class ApiService {
         const observationToSend = {
             ...observation,
             location: pointLeafletToGeo(observation.location),
-            boundary: pointLeafletToGeo(observation.boundary),
+            boundary: polygonLeafletToGeo(observation.boundary),
         }
         const options = {
             method: 'PUT',
@@ -255,6 +255,15 @@ class ApiService {
         const options = {
             method: 'PUT',
             body: JSON.stringify(body),
+        }
+        await this.fetchJson(url, options);
+    }
+
+    async putUserBan(userId, banData) {
+        const url = this.apiPrefix + '/User/' + userId + '/Ban';
+        const options = {
+            method: 'PUT',
+            body: JSON.stringify(banData),
         }
         await this.fetchJson(url, options);
     }
