@@ -11,7 +11,7 @@ import { useState, useContext, useEffect } from 'react';
 import TagInput from '../components/TagInput';
 import { MapContext } from '../services/contexts';
 import { UserContext } from '../services/contexts';
-import { deepParseFloat, deepToString } from '../services/utils';
+import { deepParseFloat, deepToString, deepIsNaN } from '../services/utils';
 import { apiService } from '../services/api';
 import { useNavigate, useParams } from 'react-router-dom'
 export default function ObservationEdit() {
@@ -19,8 +19,11 @@ export default function ObservationEdit() {
     const [title, setTitle] = useState('');
     const [tags, setTags] = useState([]);
     const { selectedPoint, setSelectedPoint, setPointSelection, selectedPolygon, setSelectedPolygon, addLocationType, setAddLocationType, setPolygonSelection, reloadObservations } = useContext(MapContext);
-    //const { currentUser } = useContext(UserContext);
+    const [validated, setValidated] = useState(false);
     const navigate = useNavigate();
+
+    const titleValid = title.trim() !== '';
+    const locationValid = isLocationValid();
 
     useEffect(() => clearSharedState(), []);
     useEffect(() => {
@@ -29,6 +32,17 @@ export default function ObservationEdit() {
                 setState(observation);
             });
     }, []);
+
+    function isLocationValid() {
+        if (addLocationType === 'point') {
+            const location = deepParseFloat(selectedPoint);
+            return !deepIsNaN(location);
+        }
+        else if (addLocationType === 'polygon') {
+            const boundary = deepParseFloat(selectedPolygon);
+            return !deepIsNaN(boundary) && selectedPolygon.length >= 3;
+        }
+    }
 
     function setState(observation) {
         console.log('observation', observation);
@@ -65,8 +79,17 @@ export default function ObservationEdit() {
             setAddLocationType(e.target.value);
         }
     }
+
+    function validate() {
+        setValidated(true);
+        return titleValid && locationValid;
+    }
+
     async function handleSubmit(e) {
         e.preventDefault();
+        if (!validate()) {
+            return;
+        }
         const observation = {
             id: id,
             title: title,
@@ -99,7 +122,8 @@ export default function ObservationEdit() {
         setSelectedPolygon([]);
         setPolygonSelection(true);
     }
-    
+
+    const invalidLocationInfo = <div className="text-danger">Proszę podać poprawną lokalizację obserwacji.</div>;
     const polygonInputs = selectedPolygon.map((point, index) => <PolygonPointInputs pointIndex={index} key={index} />);
     return (
         <div>
@@ -107,7 +131,8 @@ export default function ObservationEdit() {
             <Form onSubmit={handleSubmit} action="#">
                 <Form.Group className="mb-3" controlId="formObservationTitle">
                     <Form.Label>Tytuł</Form.Label>
-                    <Form.Control type="text" value={title} onChange={handleTitleChange} />
+                    <Form.Control type="text" isInvalid={validated && !titleValid} value={title} onChange={handleTitleChange} />
+                    <Form.Control.Feedback type="invalid">Proszę podać tytuł.</Form.Control.Feedback>
                 </Form.Group>
                 <TagInput label="Tagi" initialTags={tags} onTagsChange={handleTagsChange} />
                 <div>Położenie</div>
@@ -117,7 +142,7 @@ export default function ObservationEdit() {
                 </div>
                 <Collapse in={addLocationType === 'point'}>
                     <div>
-                        <Card className="mt-3 mb-3">
+                        <Card className="mt-3 mb-3" border={validated && !locationValid && 'danger'}>
                             <Card.Header>Lokalizacja</Card.Header>
                             <Card.Body>
                                 <Button variant="primary" type="button" className="mb-2" onClick={handleAddFromMapClick}>Dodaj z mapy</Button>
@@ -137,11 +162,12 @@ export default function ObservationEdit() {
                                 </Row>
                             </Card.Body>
                         </Card>
+                        {validated && !locationValid && invalidLocationInfo}
                     </div>
                 </Collapse>
                 <Collapse in={addLocationType === 'polygon'}>
                     <div>
-                        <Card className="mt-3 mb-3">
+                        <Card className="mt-3 mb-3" border={validated && !locationValid && 'danger'}>
                             <Card.Header>Lokalizacja</Card.Header>
                             <Card.Body>
                                 {polygonInputs}
@@ -151,6 +177,7 @@ export default function ObservationEdit() {
                                 </Stack>
                             </Card.Body>
                         </Card>
+                        {validated && !locationValid && invalidLocationInfo}
                     </div>
                 </Collapse>
                 <Stack direction="horizontal" className="justify-content-end my-3">

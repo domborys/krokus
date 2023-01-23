@@ -9,7 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Stack from 'react-bootstrap/Stack';
 import PanelHeader from '../components/PanelHeader';
 export default function ObservationSearch() {
-    const [confirmed, setConfirmed] = useState('');
+    const [confirmed, setConfirmed] = useState('yes');
     const [description, setDescription] = useState('');
     const [observationDate, setObservationDate] = useState(new Date());
     const [oldPictures, setOldPictures] = useState([]);

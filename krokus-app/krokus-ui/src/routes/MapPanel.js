@@ -69,13 +69,6 @@ function MapZoomer() {
 function getBounds(observations) {
     const points = observations.map(o => o.location);
     return getBbox(points);
-    /*
-    const minN = points.reduce((currentMin, point) => Math.min(currentMin, point[0]), Infinity);
-    const minE = points.reduce((currentMin, point) => Math.min(currentMin, point[1]), Infinity);
-    const maxN = points.reduce((currentMin, point) => Math.max(currentMin, point[0]), -Infinity);
-    const maxE = points.reduce((currentMin, point) => Math.max(currentMin, point[1]), -Infinity);
-    return [[minN, minE], [maxN, maxE]];
-    */
 }
 
 function getBbox(points) {
@@ -108,10 +101,11 @@ function SelectedPointMarker() {
         }
     }, [isPointSelection]);
     const pointMarkerVisible =
-        (subpage === 'observationSearch' && locationType === 'distance')
+        ((subpage === 'observationSearch' && locationType === 'distance')
         || (subpage === 'observationAdd' && addLocationType === 'point')
-        || (subpage === 'observationEdit' && addLocationType === 'point')
+        || (subpage === 'observationEdit' && addLocationType === 'point'))
         && selectedPointFloat.every(c => !isNaN(c));
+    console.log(pointMarkerVisible);
     return (pointMarkerVisible &&
         <>
             {!isNaN(radius) && <Circle center={selectedPoint} pathOptions={{ fillColor: 'blue' }} radius={radius} />}

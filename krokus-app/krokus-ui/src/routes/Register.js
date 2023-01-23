@@ -13,8 +13,6 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
     const [validated, setValidated] = useState(false);
-    //const [passwordValid, setPasswordValid] = useState(false);
-    //const [repeatPasswordValid, setRepeatPasswordValid] = useState(false);
     const [errorText, setErrorText] = useState(null);
     const navigate = useNavigate();
 

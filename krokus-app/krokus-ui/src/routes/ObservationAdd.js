@@ -12,7 +12,7 @@ import TagInput from '../components/TagInput';
 import { MapContext } from '../services/contexts';
 import DatePicker from 'react-datepicker';
 import { UserContext } from '../services/contexts';
-import { deepParseFloat } from '../services/utils';
+import { deepParseFloat, deepIsNaN } from '../services/utils';
 import { apiService } from '../services/api';
 import { useNavigate} from 'react-router-dom'
 export default function ObservationSearch() {
@@ -22,10 +22,25 @@ export default function ObservationSearch() {
     const { selectedPoint, setSelectedPoint, setPointSelection, selectedPolygon, setSelectedPolygon, addLocationType, setAddLocationType, setPolygonSelection } = useContext(MapContext);
     const [observationDate, setObservationDate] = useState(new Date());
     const [files, setFiles] = useState([]);
+    const [validated, setValidated] = useState(false);
     const { currentUser } = useContext(UserContext);
     const navigate = useNavigate();
 
+    const titleValid = title.trim() !== '';
+    const locationValid = isLocationValid();
+
     useEffect(() => clearSharedState(), []);
+
+    function isLocationValid() {
+        if (addLocationType === 'point') {
+            const location = deepParseFloat(selectedPoint);
+            return !deepIsNaN(location);
+        }
+        else if (addLocationType === 'polygon') {
+            const boundary = deepParseFloat(selectedPolygon);
+            return !deepIsNaN(boundary) && selectedPolygon.length >= 3;
+        }
+    }
 
     function clearSharedState() {
         setSelectedPoint(['', '']);
@@ -45,8 +60,17 @@ export default function ObservationSearch() {
             setAddLocationType(e.target.value);
         }
     }
+
+    function validate() {
+        setValidated(true);
+        return titleValid && locationValid;
+    }
+
     async function handleSubmit(e) {
         e.preventDefault();
+        if (!validate()) {
+            return;
+        }
         const observation = {
             title: title,
             userId: currentUser.id,
@@ -69,7 +93,6 @@ export default function ObservationSearch() {
         if (files.length > 0) {
             await apiService.postPictures(confirmationId, files);
         }
-        //console.log('savedObservation',savedObservation);
         navigate(`/map/observations/${savedObservation.id}`);
     }
     function handleAddFromMapClick(e) {
@@ -95,6 +118,7 @@ export default function ObservationSearch() {
     function handlePicturesChange(e) {
         setFiles(Array.from(e.target.files));
     }
+    const invalidLocationInfo = <div className="text-danger">Proszę podać poprawną lokalizację obserwacji.</div>;
     const polygonInputs = selectedPolygon.map((point, index) => <PolygonPointInputs pointIndex={index} key={index} />);
     return (
         <div>
@@ -102,7 +126,8 @@ export default function ObservationSearch() {
             <Form onSubmit={handleSubmit} action="#">
                 <Form.Group className="mb-3" controlId="formObservationTitle">
                     <Form.Label>Tytuł</Form.Label>
-                    <Form.Control type="text" value={title} onChange={handleTitleChange} />
+                    <Form.Control type="text" isInvalid={validated && !titleValid} value={title} onChange={handleTitleChange} />
+                    <Form.Control.Feedback type="invalid">Proszę podać tytu.ł</Form.Control.Feedback>
                 </Form.Group>
                 <TagInput label="Tagi" onTagsChange={handleTagsChange} />
                 <div>Położenie</div>
@@ -112,7 +137,7 @@ export default function ObservationSearch() {
                 </div>
                 <Collapse in={addLocationType === 'point'}>
                     <div>
-                        <Card className="mt-3 mb-3">
+                        <Card className="mt-3 mb-3" border={validated && !locationValid && 'danger'}>
                             <Card.Header>Lokalizacja</Card.Header>
                             <Card.Body>
                                 <Button variant="primary" type="button" className="mb-2" onClick={handleAddFromMapClick}>Dodaj z mapy</Button>
@@ -132,11 +157,12 @@ export default function ObservationSearch() {
                                 </Row>
                             </Card.Body>
                         </Card>
+                        {validated && !locationValid && invalidLocationInfo}
                     </div>
                 </Collapse>
                 <Collapse in={addLocationType === 'polygon'}>
                     <div>
-                        <Card className="mt-3 mb-3">
+                        <Card className="mt-3 mb-3" border={validated && !locationValid && 'danger'}>
                             <Card.Header>Lokalizacja</Card.Header>
                             <Card.Body>
                                 {polygonInputs}
@@ -147,6 +173,7 @@ export default function ObservationSearch() {
                                 
                             </Card.Body>
                         </Card>
+                        {validated && !locationValid && invalidLocationInfo}
                     </div>
                 </Collapse>
                 <Form.Group className="mb-3" controlId="observationDate">

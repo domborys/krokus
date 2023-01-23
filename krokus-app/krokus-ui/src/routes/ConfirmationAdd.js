@@ -8,7 +8,7 @@ import { UserContext } from '../services/contexts';
 import { apiService } from '../services/api';
 import { useNavigate, useSearchParams } from 'react-router-dom'
 export default function ObservationSearch() {
-    const [confirmed, setConfirmed] = useState('');
+    const [confirmed, setConfirmed] = useState('yes');
     const [description, setDescription] = useState('');
     const [observationDate, setObservationDate] = useState(new Date());
     const [files, setFiles] = useState([]);

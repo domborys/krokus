@@ -20,6 +20,15 @@ function deepToString(val) {
     }   
 }
 
+function deepIsNaN(val) {
+    if (Array.isArray(val)) {
+        return val.some(deepIsNaN);
+    }
+    else {
+        return isNaN(val);
+    }
+}
+
 function isValidPassword(password) {
     const requirements = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/];
     const minLength = 6;
@@ -55,4 +64,4 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-export { deepParseFloat, deepToString, isValidPassword, isValidEmail, parseJwt, rolePrettyName, formatDatetime };
+export { deepParseFloat, deepToString, deepIsNaN, isValidPassword, isValidEmail, parseJwt, rolePrettyName, formatDatetime };

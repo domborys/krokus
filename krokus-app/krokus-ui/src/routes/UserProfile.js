@@ -4,8 +4,8 @@ import ObservationPaginatedList from '../components/ObservationPaginatedList';
 import ConfirmationPaginatedList from '../components/ConfirmationPaginatedList';
 import RoleChangeModal from '../components/RoleChangeModal';
 import BanChangeModal from '../components/BanChangeModal';
-import { useState, useEffect, useMemo, useContext } from 'react';
-import { useParams, Link } from 'react-router-dom'
+import { useState, useEffect, useContext } from 'react';
+import { useParams } from 'react-router-dom'
 import { apiService } from '../services/api';
 import { UserContext } from '../services/contexts';
 import { rolePrettyName, formatDatetime } from '../services/utils';
