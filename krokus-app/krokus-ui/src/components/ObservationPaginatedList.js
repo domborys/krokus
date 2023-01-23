@@ -3,35 +3,28 @@ import { apiService } from '../services/api';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useNavigate } from 'react-router-dom'
-export default function ObservationPaginatedList({ params, onObservationClick = () => { } }) {
-    const [observations, setObservations] = useState(null);
+export default function ObservationPaginatedList({ observations, onPageChange = () => { }, onObservationClick = () => { } }) {
+    
     const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
     const visibleObservations = observations ? observations.items : [];
-    useEffect(() => {
-        setPage(1);
-    }, [params]);
-
-    async function setPage(pageNumber) {
-        const paramsWithPage = {
-            pageIndex: pageNumber,
-            ...params
-        }
-        const obs = await apiService.getObservations(paramsWithPage);
-        setObservations(obs);
-        setCurrentPage(pageNumber);
-    }
+    
 
     function handleObservationClick(id) {
         onObservationClick(id);
         navigate(`/map/observations/${id}`);
     }
 
+    async function handlePageChange(number) {
+        await onPageChange(number);
+        setCurrentPage(number);
+    }
+
     const totalPages = observations ? observations.totalPages : 0;
     const paginationItems = [];
     for (let number = 1; number <= totalPages; number++) {
         paginationItems.push(
-            <Pagination.Item key={number} active={number === currentPage} onClick={e => setPage(number)}>
+            <Pagination.Item key={number} active={number === currentPage} onClick={e => handlePageChange(number)}>
                 {number}
             </Pagination.Item>
         );

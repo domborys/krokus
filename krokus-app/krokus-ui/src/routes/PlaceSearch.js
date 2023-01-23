@@ -18,11 +18,6 @@ export default function PlaceSearch() {
     const [noPlacesFound, setNoPlacesFound] = useState(false);
     const anyPlaceSelected = selectedPlace && places.some(p => p.place_id === selectedPlace.place_id);
 
-    /*
-    useEffect(() => {
-        loadPlaces()
-    }, [])*/
-
     async function loadPlaces() {
         try {
             const places = await apiService.getPlace(placeName);

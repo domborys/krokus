@@ -16,12 +16,32 @@ export default function UserProfile() {
     const [user, setUser] = useState(null);
     const [isRoleChange, setRoleChange] = useState(false);
     const [isBanChange, setBanChange] = useState(false);
+    const [observations, setObservations] = useState(null);
+    const [confirmations, setConfirmations] = useState(null);
     const { id } = useParams();
     const permanentlyBanned = user && user.permanentlyBanned;
     const bannedUntilDate = user?.bannedUntil ? new Date(user.bannedUntil) : null;
     const tempBanned = bannedUntilDate && isBefore(new Date(), bannedUntilDate);
     const modRights = currentUser.role === 'Admin' || currentUser.role === 'Moderator';
-    
+
+    async function getObservationsPage(pageNumber) {
+        const paramsWithPage = {
+            pageIndex: pageNumber,
+            userId: id,
+        }
+        const obs = await apiService.getObservations(paramsWithPage);
+        setObservations(obs);
+    }
+
+    async function getConfirmationsPage(pageNumber) {
+        const paramsWithPage = {
+            pageIndex: pageNumber,
+            userId: id,
+        }
+        const obs = await apiService.getConfirmations(paramsWithPage);
+        setConfirmations(obs);
+    }
+
     async function getUser() {
         const newUser = await apiService.getUser(id);
         setUser(newUser);
@@ -29,10 +49,9 @@ export default function UserProfile() {
 
     useEffect(() => {
         getUser();
-        
+        getObservationsPage(1);
+        getConfirmationsPage(1);
     }, [id]);
-
-    const observationParams = useMemo(() => ({ userId: id }), [id]);
 
     function handleRoleChangeClick() {
         setRoleChange(true);
@@ -63,9 +82,9 @@ export default function UserProfile() {
         {tempBanned && <div>Zablokowany do {formatDatetime(bannedUntilDate)}</div>}
         {modRights && <Button type="button" onClick={handleBanClick}>{banButtonText}</Button>}
         <h3>Obserwacje</h3>
-        <ObservationPaginatedList params={observationParams} />
+        <ObservationPaginatedList observations={observations} onPageChange={getObservationsPage} />
         <h3>Potwierdzenia</h3>
-        <ConfirmationPaginatedList params={observationParams} />
+        <ConfirmationPaginatedList confirmations={confirmations} onPageChange={getConfirmationsPage} />
     </>
     return (
         <Container className="mt-5">

@@ -17,8 +17,6 @@ import routeData from '../services/routeData';
 import { MapContext } from '../services/contexts';
 import L from 'leaflet';
 export default function Map() {
-    const obs = { items: [{ id: 1, title: 'aaaa', location: [50.132162, 18.556524] }, { id: 2, title: 'bbbb', location: [50.220957, 19.161552] }, { id: 3, title: 'ccc', location: [50.451696, 18.935892] }] };
-    const obs2 = [{ title: 'krowa', location: [52.132162, 17.556524] }];
     const obs3 = { items: [] };
     const [title, setTitle] = useState('');
     const [tags, setTags] = useState([]);
@@ -74,14 +72,20 @@ export default function Map() {
                 }
             }
         }
+        params.pageSize = 100;
         setPrevSearchParams(params);
         const result = await apiService.getObservations(params);
         setObservations(result);
         navigate('/map/results');
     }
 
-    async function reloadObservations() {
-        const result = await apiService.getObservations(prevSearchParams);
+    async function reloadObservations(page) {
+        const newParams = { ...prevSearchParams };
+        if (typeof page !== 'undefined') {
+            newParams.pageIndex = page;
+        }
+        const result = await apiService.getObservations(newParams);
+        setPrevSearchParams(newParams)
         setObservations(result);
     } 
 

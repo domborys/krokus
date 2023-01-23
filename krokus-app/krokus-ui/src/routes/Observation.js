@@ -4,6 +4,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiService } from '../services/api';
+import ConfirmationPaginatedList from '../components/ConfirmationPaginatedList';
 import ConfirmationItem from '../components/ConfirmationItem';
 import ConfirmDelete from '../components/ConfirmDelete';
 import PanelHeader from '../components/PanelHeader';
@@ -26,16 +27,18 @@ export default function Observation() {
             .then(observation => {
                 setObservation(observation);
             });
-        apiService.getConfirmationsOfObservation(id)
-            .then(confirmations => {
-                console.log(confirmations);
-                setConfirmations(confirmations);
-            })
+        getConfirmations(1);
     }, [id]);
 
-    function handleCloseButtonClick(e) {
-        navigate('/map/results');
+    async function getConfirmations(page = 1) {
+        const params = {
+            observationId: id,
+            pageIndex: page,
+        }
+        const confirmations = await apiService.getConfirmations(params);
+        setConfirmations(confirmations);
     }
+    
     function handleDeleteObservationClick() {
         setObservationDelete(true);
     }
@@ -92,10 +95,8 @@ export default function Observation() {
                     Dodaj potwierdzenie
                 </Button>
             </Stack>
-            
-                <ListGroup>
-                    {confirmationItems}
-                </ListGroup>
+
+            <ConfirmationPaginatedList confirmations={confirmations} onPageChange={getConfirmations} />
             </div>
             
         </>
