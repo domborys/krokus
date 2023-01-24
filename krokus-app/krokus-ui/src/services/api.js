@@ -10,16 +10,13 @@ class ApiService {
     loadToken() {
         const sessionToken = sessionStorage.getItem('token');
         if (sessionToken === null) {
-            console.log('No token found.');
             return null;
         }
         const tokenData = parseJwt(sessionToken);
         if (tokenData.exp > Date.now() / 1000) {
-            console.log('Token still valid');
             return sessionToken;
         }
         else {
-            console.log('Token expired.');
             return null;
         }
     }
@@ -40,8 +37,8 @@ class ApiService {
             sessionStorage.setItem('token', this.token);
         }
         else {
-            console.log(response);
-            throw new Error('Authentication failed');
+            const msg = await this.getResponseErrorMessage(response);
+            throw new Error(msg ?? 'Nieznany b³¹d serwera.');
         }
 
     }
@@ -80,23 +77,8 @@ class ApiService {
     }
 
     async getObservations(params) {
-        /*
-        const searchParams = new URLSearchParams();
-        for (const name in params) {
-            const value = params[name];
-            if (Array.isArray(value)) {
-                value.forEach(el => searchParams.append(name, el));
-            }
-            else {
-                searchParams.append(name, value);
-            }
-        }
-        const url = this.apiPrefix + '/Observations?' + searchParams.toString();
-        */
         const url = this.apiPrefix + '/Observations?' + paramsToUrl(params);
-        console.log(url);
         const apiObservations = await this.fetchJson(url);
-        console.log(apiObservations);
         return this.prepareObservations(apiObservations);
     }
 
@@ -110,7 +92,6 @@ class ApiService {
         
         const searchParams = new URLSearchParams({ observationId: observationId });
         const url = this.apiPrefix + '/Confirmations?' + searchParams.toString();
-        console.log(url);
         return await this.fetchJson(url);
     }
 
@@ -135,9 +116,7 @@ class ApiService {
             method: 'POST',
             body: JSON.stringify(observationToSend),
         }
-        console.log('Request', observationToSend);
         const response = await this.fetchJson(url, options);
-        console.log(response);
         return response;
     }
 
@@ -152,7 +131,6 @@ class ApiService {
             method: 'PUT',
             body: JSON.stringify(observationToSend),
         }
-        console.log('Request', observationToSend);
         await this.fetchJson(url, options);
     }
 
@@ -172,9 +150,7 @@ class ApiService {
             method: 'POST',
             body: JSON.stringify(confirmation),
         }
-        console.log('Request', confirmation);
         const response = await this.fetchJson(url, options);
-        console.log(response);
         return response;
     }
 
@@ -212,7 +188,6 @@ class ApiService {
             return result;
         }
         else {
-            console.log(response);
             throw new Error('Could not fetch the data');
         }
     }
@@ -234,7 +209,6 @@ class ApiService {
         const searchParams = new URLSearchParams(params);
         const url = this.nominatimPrefix + searchParams;
         const response = await this.fetchJson(url, {}, false);
-        console.log(this.transformNominatimResponse(response));
         return this.transformNominatimResponse(response);
     }
 
@@ -293,10 +267,21 @@ class ApiService {
             }
         }
         else {
-            console.log(response);
-            throw new Error('Could not fetch the data.');
+            const msg = await this.getResponseErrorMessage(response);
+            throw new Error(msg ?? 'Nieznany b³¹d serwera.');
         }
         
+    }
+
+
+    async getResponseErrorMessage(response) {
+        try {
+            const json = await response.json();
+            return json.title ?? null;
+        }
+        catch (e) {
+            return null;
+        }
     }
 
     getPictureUrl(id) {

@@ -3,7 +3,7 @@ using krokus_api.Consts;
 using krokus_api.Data;
 using krokus_api.Dtos;
 using krokus_api.Models;
-using krokusapi.Migrations;
+using krokus_api.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -77,15 +77,16 @@ namespace krokus_api.Services
 
             if (user is null || !await _userManager.CheckPasswordAsync(user, request.Password))
             {
-                throw new ArgumentException($"Unable to authenticate user {request.Username}");
+                throw new LoginException($"Nieprawidłowa nazwa użytkownika lub hasło.");
             }
             if(user.PermanentlyBanned)
             {
-                throw new ArgumentException($"User is banned");
+                throw new LoginException($"Konto jest zablokowane do odwołania");
             }
-            if (user.BannedUntil is not null && user.BannedUntil > DateTime.Now)
+            if (user.BannedUntil != null && user.BannedUntil > DateTime.Now)
             {
-                throw new ArgumentException($"User is banned until {user.BannedUntil}");
+                string? dateFormatted = user.BannedUntil?.ToString("H:mm d.MM.yyyy");
+                throw new LoginException($"Konto jest zablokowane do {dateFormatted}");
             }
             var authClaims = new List<Claim>
             {

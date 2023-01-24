@@ -2,10 +2,9 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { apiService } from '../services/api';
-import { UserContext } from '../services/contexts';
 import { isValidPassword, isValidEmail } from '../services/utils';
 export default function Login() {
     const [username, setUsername] = useState('');

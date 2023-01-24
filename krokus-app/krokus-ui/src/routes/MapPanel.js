@@ -59,7 +59,7 @@ function MapZoomer() {
     const { focusedObservation } = useContext(MapContext);
     useEffect(() => {
         if (focusedObservation) {
-            const zoom = Math.max(map.getZoom(), 15);
+            const zoom = Math.max(map.getZoom(), 16);
             map.setView(focusedObservation.location, zoom);
         }
     }, [focusedObservation]);

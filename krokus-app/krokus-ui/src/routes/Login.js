@@ -31,7 +31,6 @@ export default function Login() {
             username,
             password,
         }
-        console.log(credentials);
         try {
             await apiService.authenticate(credentials);
             const user = await apiService.getCurrentUser();
@@ -39,14 +38,13 @@ export default function Login() {
             navigate('/map');
         }
         catch (error) {
-            console.log(error);
-            setErrorText('Błąd');
+            setErrorText(error.message);
         }
     }
 
     const errorMessage =
         <Alert variant="danger" className="my-3">
-            Nieprawidłowa nazwa użytkownika lub hasło.
+            {errorText}
         </Alert>;
     const registerSuccessAlert =
         <Alert variant="success">

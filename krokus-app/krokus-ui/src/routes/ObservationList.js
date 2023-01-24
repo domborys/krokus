@@ -12,18 +12,12 @@ export default function ObservationList({ observations }) {
     function handleObservationClick(observationId) {
         const id = parseInt(observationId);
         setFocusedObservationId(id);
-        navigate(`/map/observations/${id}`);
     }
 
-    const items = observations.items.map(obs =>
-        <ListGroup.Item action key={obs.id} onClick={e => handleObservationClick(obs.id, e)}>
-            {obs.title}
-        </ListGroup.Item>
-    );
     return (
         <>
             <PanelHeader>Wyniki</PanelHeader>
-            <ObservationPaginatedList observations={observations} onPageChange={reloadObservations} />
+            <ObservationPaginatedList observations={observations} onPageChange={reloadObservations} onObservationClick={handleObservationClick} />
         </>
          
     );

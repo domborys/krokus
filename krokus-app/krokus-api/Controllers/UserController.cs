@@ -1,6 +1,7 @@
 ﻿using Azure;
 using krokus_api.Consts;
 using krokus_api.Dtos;
+using krokus_api.Exceptions;
 using krokus_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,9 +28,17 @@ namespace krokus_api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
-            var response = await _authenticationService.Login(request);
-
-            return Ok(response);
+            try
+            {
+                var response = await _authenticationService.Login(request);
+                return Ok(response);
+            }
+            catch(LoginException e)
+            {
+                return Problem(statusCode: 403, title: e.Message);
+                //return Unauthorized(e.Message);
+            }
+            
         }
 
         [AllowAnonymous]
