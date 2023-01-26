@@ -18,10 +18,9 @@ import { MapContext } from '../services/contexts';
 import { padMeters } from '../services/utils';
 import L from 'leaflet';
 export default function Map() {
-    const obs3 = { items: [] };
     const [title, setTitle] = useState('');
     const [tags, setTags] = useState([]);
-    const [observations, setObservations] = useState(obs3);
+    const [observations, setObservations] = useState({ items: [] });
     const [selectedPoint, setSelectedPoint] = useState(['', '']);
     const [selectedPointDistance, setSelectedPointDistance] = useState('1');
     const [isPointSelection, setPointSelection] = useState(false);

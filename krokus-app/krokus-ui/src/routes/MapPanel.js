@@ -108,7 +108,7 @@ function SelectedPointMarker() {
         && selectedPointFloat.every(c => !isNaN(c));
     return (pointMarkerVisible &&
         <>
-            {!isNaN(radius) && <Circle center={selectedPoint} pathOptions={{ fillColor: 'blue' }} radius={radius} />}
+        {!isNaN(radius) && <Circle center={selectedPoint} pathOptions={{ fillColor: 'fuchsia', color: 'fuchsia' }} radius={radius} />}
             <Marker position={selectedPoint} key="selectedPoint"></Marker>
         </>);
 }
@@ -174,6 +174,7 @@ function SelectedPlace() {
     }, [selectedPlace]);
 
     let el;
+    const pathOptions = { fillColor: 'fuchsia', color: 'fuchsia' };
     if (!visible) {
         el = null;
     }
@@ -182,7 +183,7 @@ function SelectedPlace() {
             el = <Marker position={selectedPlace.leaflet.coordinates} key="selectedPlacePoint"></Marker>
         }
         else {
-            el = <Polygon pathOptions={{ fillColor: 'blue', color: 'blue' }} positions={selectedPlace.leaflet.coordinates} key="selectedPlacePolygon" />;
+            el = <Polygon pathOptions={pathOptions} positions={selectedPlace.leaflet.coordinates} key="selectedPlacePolygon" />;
         }
     }
     else if (subpage === 'observationSearch') {
@@ -190,13 +191,13 @@ function SelectedPlace() {
         if (selectedPlace.leaflet.type === 'Point') {
             const latlng = L.latLng(selectedPlace.leaflet.coordinates);
             const bounds = latlng.toBounds(2 * distance);
-            el = <Rectangle bounds={bounds} pathOptions={{ fillColor: 'blue', color: 'blue' }} />
+            el = <Rectangle bounds={bounds} pathOptions={pathOptions} />
         }
         else {
             const bbox = selectedPlace.boundingbox;
             const bounds = L.latLngBounds(L.latLng(bbox[0], bbox[2]), L.latLng(bbox[1], bbox[3]));
             const extendedBounds = padMeters(bounds, distance);
-            el = <Rectangle bounds={extendedBounds} pathOptions={{ fillColor: 'blue', color: 'blue' }} />
+            el = <Rectangle bounds={extendedBounds} pathOptions={pathOptions} />
         }
 
     }

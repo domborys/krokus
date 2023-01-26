@@ -156,8 +156,7 @@ namespace krokus_api.Services
             }
             else
             {
-                //return query.Where(obs => RectangleIntersects.Intersects(bbox, obs.Location));
-                return query.Where(obs => obs.Location.Intersects(bbox));
+                return query.Where(obs => (obs.Boundary != null && obs.Boundary.Intersects(bbox)) || obs.Location.Intersects(bbox));
             }
             
         }
@@ -169,8 +168,7 @@ namespace krokus_api.Services
 
                 Point center = new Point((double)queryData.Xcenter, (double)queryData.Ycenter) { SRID = 4326 };
                 double distance = (double)queryData.Distance;
-                return query.Where(obs => obs.Location.Distance(center) < distance);
-
+                return query.Where(obs => (obs.Boundary != null && obs.Boundary.Distance(center) < distance) || obs.Location.Distance(center) < distance);
             }
             else
             {
