@@ -15,6 +15,7 @@ import { useState, useMemo } from 'react';
 import { apiService } from '../services/api';
 import routeData from '../services/routeData';
 import { MapContext } from '../services/contexts';
+import { padMeters } from '../services/utils';
 import L from 'leaflet';
 export default function Map() {
     const obs3 = { items: [] };
@@ -22,7 +23,7 @@ export default function Map() {
     const [tags, setTags] = useState([]);
     const [observations, setObservations] = useState(obs3);
     const [selectedPoint, setSelectedPoint] = useState(['', '']);
-    const [selectedPointDistance, setSelectedPointDistance] = useState('');
+    const [selectedPointDistance, setSelectedPointDistance] = useState('1');
     const [isPointSelection, setPointSelection] = useState(false);
     const [selectedPolygon, setSelectedPolygon] = useState([]);
     const [isPolygonSelection, setPolygonSelection] = useState(false);
@@ -60,15 +61,17 @@ export default function Map() {
         }
         else if (locationType === 'place') {
             if (selectedPlace) {
+                const distance = selectedPointDistance * 1000;
                 if (selectedPlace.leaflet.type === 'Point') {
                     const latlng = L.latLng(selectedPlace.leaflet.coordinates);
-                    const bounds = latlng.toBounds(10000);
+                    const bounds = latlng.toBounds(2*distance);
                     Object.assign(params, boundsToParams(bounds));
                 }
                 else {
                     const bbox = selectedPlace.boundingbox;
                     const bounds = L.latLngBounds(L.latLng(bbox[0], bbox[2]), L.latLng(bbox[1], bbox[3]));
-                    Object.assign(params, boundsToParams(bounds));
+                    const extendedBounds = padMeters(bounds, distance);
+                    Object.assign(params, boundsToParams(extendedBounds));
                 }
             }
         }

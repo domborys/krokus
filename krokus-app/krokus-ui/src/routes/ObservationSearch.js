@@ -33,10 +33,7 @@ export default function ObservationSearch({onSubmit}) {
         newPoint[coordIndex] = e.target.value;
         setSelectedPoint(newPoint);
     }
-    function handleDistanceChange(e) {
-        setSelectedPointDistance(e.target.value);
-    }
-    function handleDistanceChange2(newValue) {
+    function handleDistanceChange(newValue) {
         setSelectedPointDistance(newValue);
     }
     function handleAddFromMapClick(e) {
@@ -103,8 +100,7 @@ export default function ObservationSearch({onSubmit}) {
                                 </Row>
                                 <Form.Group className="mb-3" controlId="formDistance">
                                     <Form.Label className="fw-b">Odległość</Form.Label>
-                                    {/* <Form.Control type="text" value={selectedPointDistance} onChange={handleDistanceChange} /> */}
-                                    <DistanceRange value={selectedPointDistance} onChange={handleDistanceChange2} />
+                                    <DistanceRange value={selectedPointDistance} onChange={handleDistanceChange} />
                                 </Form.Group>
                             </Card.Body>
                         </Card>
@@ -120,27 +116,10 @@ export default function ObservationSearch({onSubmit}) {
                                 Szukaj
                             </Button>
                         </InputGroup>
-                    {false && selectedPlace &&
-                        <>
-                            <Card className="d-flex flex-row align-items-center mt-3 mb-3 p-2">
-                                <div className="flex-fill">
-                                    {selectedPlace.display_name}
-                                </div>
-                                <CloseButton aria-label="Usuń miejscowość" onClick={handlePlaceDeleteClick} className="ms-2" />
-                            </Card>
-                        </>
-                    }
-                    {false && !selectedPlace &&
-                        <>
-                            <Form.Label htmlFor="formPlaceName">Miejscowość</Form.Label>
-                            <InputGroup className="mb-3">
-                                <Form.Control id="formPlaceName" value={placeName} onChange={handlePlaceNameChange} />
-                                <Button variant="primary" onClick={handlePlaceSearchClick}>
-                                    Szukaj
-                                </Button>
-                            </InputGroup>
-                        </>
-                    }
+                        <Form.Group className="my-3" controlId="formDistance">
+                            <Form.Label className="fw-b">Odległość</Form.Label>
+                            <DistanceRange value={selectedPointDistance} onChange={handleDistanceChange} />
+                        </Form.Group>
                     </div>
                 </Collapse>
                 <Stack direction="horizontal" className="justify-content-end my-3">

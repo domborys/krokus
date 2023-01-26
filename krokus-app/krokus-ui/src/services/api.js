@@ -200,6 +200,11 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    async getTags(params) {
+        const url = this.apiPrefix + '/Tags?' + paramsToUrl(params);
+        return await this.fetchJson(url);
+    }
+
     async getPlace(placeQuery) {
         const params = {
             'q': placeQuery,

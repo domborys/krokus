@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import L from 'leaflet';
 
 function deepParseFloat(val) {
     if (Array.isArray(val))
@@ -53,6 +54,14 @@ function formatDatetime(isoDate) {
     return format(new Date(isoDate), 'H:mm dd.MM.y');
 }
 
+function padMeters(bounds, meters) {
+    const corners = [bounds.getNorthEast(), bounds.getSouthEast(), bounds.getSouthWest(), bounds.getNorthWest()];
+    const cornerBounds = corners.map(corner => corner.toBounds(meters));
+    const newBounds = L.latLngBounds(bounds.getSouthWest(), bounds.getNorthEast());
+    cornerBounds.forEach(cb => newBounds.extend(cb));
+    return newBounds;
+}
+
 //https://stackoverflow.com/a/38552302
 function parseJwt(token) {
     var base64Url = token.split('.')[1];
@@ -64,4 +73,4 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-export { deepParseFloat, deepToString, deepIsNaN, isValidPassword, isValidEmail, parseJwt, rolePrettyName, formatDatetime };
+export { deepParseFloat, deepToString, deepIsNaN, isValidPassword, isValidEmail, parseJwt, rolePrettyName, formatDatetime, padMeters };

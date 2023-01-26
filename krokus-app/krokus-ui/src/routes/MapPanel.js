@@ -1,7 +1,8 @@
 import { useEffect, useContext, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent, Circle, Polygon } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent, Circle, Polygon, Rectangle } from 'react-leaflet';
 import L from 'leaflet';
 import { MapContext } from '../services/contexts';
+import { padMeters } from '../services/utils';
 export default function MapPanel({ observations, onObservationClick}) {
     const { setMap, subpage } = useContext(MapContext);
     function handleMarkerClick(observationId, e) {
@@ -105,7 +106,6 @@ function SelectedPointMarker() {
         || (subpage === 'observationAdd' && addLocationType === 'point')
         || (subpage === 'observationEdit' && addLocationType === 'point'))
         && selectedPointFloat.every(c => !isNaN(c));
-    console.log(pointMarkerVisible);
     return (pointMarkerVisible &&
         <>
             {!isNaN(radius) && <Circle center={selectedPoint} pathOptions={{ fillColor: 'blue' }} radius={radius} />}
@@ -158,7 +158,7 @@ function SelectedPolygon() {
 
 function SelectedPlace() {
     const map = useMap();
-    const { selectedPlace, locationType, subpage } = useContext(MapContext);
+    const { selectedPlace, locationType, subpage, selectedPointDistance } = useContext(MapContext);
     const visible = selectedPlace && locationType === 'place' && (subpage === 'placeSearch' || subpage === 'observationSearch');
     useEffect(() => {
         if (!visible) {
@@ -177,11 +177,28 @@ function SelectedPlace() {
     if (!visible) {
         el = null;
     }
-    else if (selectedPlace.leaflet.type === 'Point') {
-        el = <Marker position={selectedPlace.leaflet.coordinates} key="selectedPlacePoint"></Marker>
+    else if (subpage === 'placeSearch') {
+        if (selectedPlace.leaflet.type === 'Point') {
+            el = <Marker position={selectedPlace.leaflet.coordinates} key="selectedPlacePoint"></Marker>
+        }
+        else {
+            el = <Polygon pathOptions={{ fillColor: 'blue', color: 'blue' }} positions={selectedPlace.leaflet.coordinates} key="selectedPlacePolygon" />;
+        }
     }
-    else {
-        el = <Polygon pathOptions={{ fillColor: 'blue', color: 'blue' }} positions={selectedPlace.leaflet.coordinates} key="selectedPlacePolygon" />;
+    else if (subpage === 'observationSearch') {
+        const distance = selectedPointDistance * 1000;
+        if (selectedPlace.leaflet.type === 'Point') {
+            const latlng = L.latLng(selectedPlace.leaflet.coordinates);
+            const bounds = latlng.toBounds(2 * distance);
+            el = <Rectangle bounds={bounds} pathOptions={{ fillColor: 'blue', color: 'blue' }} />
+        }
+        else {
+            const bbox = selectedPlace.boundingbox;
+            const bounds = L.latLngBounds(L.latLng(bbox[0], bbox[2]), L.latLng(bbox[1], bbox[3]));
+            const extendedBounds = padMeters(bounds, distance);
+            el = <Rectangle bounds={extendedBounds} pathOptions={{ fillColor: 'blue', color: 'blue' }} />
+        }
+
     }
     return el;
 }
