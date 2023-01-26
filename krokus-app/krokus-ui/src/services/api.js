@@ -117,7 +117,7 @@ class ApiService {
             body: JSON.stringify(observationToSend),
         }
         const response = await this.fetchJson(url, options);
-        return response;
+        return this.prepareObservation(response);
     }
 
     async putObservation(observation) {

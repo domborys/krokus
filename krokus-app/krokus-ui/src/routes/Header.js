@@ -10,7 +10,7 @@ export default function () {
     const { currentUser, setCurrentUser } = useContext(UserContext);
     const navigate = useNavigate();
     let accountItems;
-
+    const modRights = currentUser && (currentUser.role === 'Admin' || currentUser.role === 'Moderator');
     async function logout() {
         await apiService.logout();
         setCurrentUser(null);
@@ -30,8 +30,8 @@ export default function () {
     else {
         accountItems =
             <>
+            {modRights && <Nav.Item><Nav.Link as={Link} to="/user-search">Użytkownicy</Nav.Link></Nav.Item>}
             <NavDropdown title={currentUser.username} id="user-dropdown" align="end">
-                <NavDropdown.Item as={Link} to={`/user-search`}>Użytkownicy</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to={`/Users/${currentUser.id}`}>Profil</NavDropdown.Item>
                 <NavDropdown.Item  >Zmień hasło</NavDropdown.Item>
                 <NavDropdown.Item onClick={logout}>Wyloguj</NavDropdown.Item>

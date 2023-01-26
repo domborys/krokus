@@ -106,9 +106,10 @@ function SelectedPointMarker() {
         || (subpage === 'observationAdd' && addLocationType === 'point')
         || (subpage === 'observationEdit' && addLocationType === 'point'))
         && selectedPointFloat.every(c => !isNaN(c));
+    const isCircleVisible = !isNaN(radius) && (subpage === 'observationSearch' && locationType === 'distance');
     return (pointMarkerVisible &&
         <>
-        {!isNaN(radius) && <Circle center={selectedPoint} pathOptions={{ fillColor: 'fuchsia', color: 'fuchsia' }} radius={radius} />}
+        {isCircleVisible && <Circle center={selectedPoint} pathOptions={{ fillColor: 'fuchsia', color: 'fuchsia' }} radius={radius} />}
             <Marker position={selectedPoint} key="selectedPoint"></Marker>
         </>);
 }

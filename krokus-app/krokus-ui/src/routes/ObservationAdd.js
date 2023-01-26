@@ -19,7 +19,8 @@ export default function ObservationSearch() {
     const [title, setTitle] = useState('');
     const [tags, setTags] = useState([]);
     const [description, setDescription] = useState('');
-    const { selectedPoint, setSelectedPoint, setPointSelection, selectedPolygon, setSelectedPolygon, addLocationType, setAddLocationType, setPolygonSelection } = useContext(MapContext);
+    const { selectedPoint, setSelectedPoint, setPointSelection, selectedPolygon, setSelectedPolygon,
+        addLocationType, setAddLocationType, setPolygonSelection, displayCreatedObservation } = useContext(MapContext);
     const [observationDate, setObservationDate] = useState(new Date());
     const [files, setFiles] = useState([]);
     const [validated, setValidated] = useState(false);
@@ -93,6 +94,7 @@ export default function ObservationSearch() {
         if (files.length > 0) {
             await apiService.postPictures(confirmationId, files);
         }
+        displayCreatedObservation(savedObservation);
         navigate(`/map/observations/${savedObservation.id}`);
     }
     function handleAddFromMapClick(e) {

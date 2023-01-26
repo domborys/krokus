@@ -96,13 +96,21 @@ export default function Map() {
         navigate(`/map/observations/${id}`);
     }
 
+    function displayCreatedObservation(newObservation) {
+        const newObservations = {
+            ...observations,
+            items: observations.items.concat([newObservation]),
+        };
+        setObservations(newObservations);
+    }
+
     return (
         <Container fluid className="full-height-container">
             <MapContext.Provider value={{
                 title, setTitle, tags, setTags,
                 selectedPoint, setSelectedPoint, isPointSelection, setPointSelection, selectedPointDistance, setSelectedPointDistance,
                 locationType, setLocationType, addLocationType, setAddLocationType, setMap, selectedPolygon, setSelectedPolygon, isPolygonSelection, setPolygonSelection, subpage,
-                focusedObservationId, setFocusedObservationId, focusedObservation, placeName, setPlaceName, selectedPlace, setSelectedPlace, reloadObservations
+                focusedObservationId, setFocusedObservationId, focusedObservation, placeName, setPlaceName, selectedPlace, setSelectedPlace, reloadObservations, displayCreatedObservation
             }}>
                 <Row className="full-height">
                     <Col xs={3} className="full-height border-end" style={{ overflow: 'auto' }} >
