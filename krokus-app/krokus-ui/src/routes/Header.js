@@ -33,7 +33,7 @@ export default function () {
             {modRights && <Nav.Item><Nav.Link as={Link} to="/user-search">Użytkownicy</Nav.Link></Nav.Item>}
             <NavDropdown title={currentUser.username} id="user-dropdown" align="end">
                 <NavDropdown.Item as={Link} to={`/Users/${currentUser.id}`}>Profil</NavDropdown.Item>
-                <NavDropdown.Item  >Zmień hasło</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/password-change" >Zmień hasło</NavDropdown.Item>
                 <NavDropdown.Item onClick={logout}>Wyloguj</NavDropdown.Item>
                 </NavDropdown>
             </>;

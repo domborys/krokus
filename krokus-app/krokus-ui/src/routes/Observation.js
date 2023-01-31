@@ -20,7 +20,7 @@ export default function Observation() {
     const { id } = useParams();
     const { currentUser } = useContext(UserContext);
     const [isObservationDelete, setObservationDelete] = useState(false);
-    const canEdit = currentUser && observation && (currentUser.id === observation.userId || currentUser.role === 'admin' || currentUser.role === 'moderator');
+    const canEdit = currentUser && observation && (currentUser.id === observation.userId || currentUser.role === 'Admin' || currentUser.role === 'Moderator');
 
     useEffect(() => {
         apiService.getObservation(id)
