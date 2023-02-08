@@ -13,6 +13,9 @@ import { Link } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import { UserContext } from '../services/contexts';
 
+/**
+ * Left panel showing a single observation and its confirmations.
+ */
 export default function Observation() {
     const navigate = useNavigate();
     const [observation, setObservation] = useState(null);

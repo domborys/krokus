@@ -3,6 +3,9 @@ import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import PictureTile from './PictureTile';
 import Button from 'react-bootstrap/Button';
+/**
+ * A row with a picture and delete button.
+ */
 export default function RemovablePicture({ picture, onDelete }) {
     function handlePictureDelete() {
         onDelete(picture)

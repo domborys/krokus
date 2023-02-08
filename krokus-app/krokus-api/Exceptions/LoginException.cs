@@ -2,6 +2,9 @@
 
 namespace krokus_api.Exceptions
 {
+    /// <summary>
+    /// Exception for a failed log-in.
+    /// </summary>
     public class LoginException : Exception
     {
         public LoginException()

@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace krokus_api.Services
 {
+    /// <summary>
+    /// Service for handling confirmations.
+    /// </summary>
     public class ConfirmationService : IConfirmationService
     {
         private readonly AppDbContext _context;
@@ -14,11 +17,20 @@ namespace krokus_api.Services
             _context = context;
         }
 
+        /// <summary>
+        /// Finds all the confirmations in the database.
+        /// </summary>
+        /// <returns>List of all the confirmations.</returns>
         public async Task<List<ConfirmationDto>> FindAllConfirmations()
         {
             return await _context.Confirmation.Select(conf => EntityToDto(conf)).ToListAsync();
         }
 
+        /// <summary>
+        /// Finds the confirmations which match the query.
+        /// </summary>
+        /// <param name="queryData">Query  describing the confirmations.</param>
+        /// <returns>Paginated list of confirmations matching the query.</returns>
         public async Task<PaginatedList<ConfirmationDto>> FindWithQuery(ConfirmationQuery queryData)
         {
             IQueryable<Confirmation> query = _context.Confirmation.Include(conf => conf.Pictures).Include(conf => conf.User);
@@ -34,6 +46,11 @@ namespace krokus_api.Services
             return await PaginatedList<ConfirmationDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
         }
 
+        /// <summary>
+        /// Finds a confirmation with the id.
+        /// </summary>
+        /// <param name="id">Id of the confirmation.</param>
+        /// <returns>The confirmation with the given id or null.</returns>
         public async Task<ConfirmationDto?> FindById(long id)
         {
             var conf = await _context.Confirmation.Include(conf => conf.Pictures).Include(conf => conf.User).Where(conf => conf.Id == id).FirstOrDefaultAsync();
@@ -43,7 +60,11 @@ namespace krokus_api.Services
             }
             return EntityToDto(conf);
         }
-
+        /// <summary>
+        /// Creates a confirmation.
+        /// </summary>
+        /// <param name="confDto">A confirmation to add.</param>
+        /// <returns>The newly created confirmation.</returns>
         public async Task<ConfirmationDto> CreateConfirmation(ConfirmationDto confDto)
         {
             Confirmation conf = new Confirmation
@@ -59,6 +80,11 @@ namespace krokus_api.Services
             return EntityToDto(conf);
         }
 
+        /// <summary>
+        /// Updates a confirmation.
+        /// </summary>
+        /// <param name="confDto">New version of the confirmation.</param>
+        /// <returns>true if successful.</returns>
         public async Task<bool> UpdateConfirmation(ConfirmationDto confDto)
         {
             Confirmation? confirmation = await _context.Confirmation.FindAsync(confDto.Id);
@@ -75,6 +101,11 @@ namespace krokus_api.Services
             return true;
         }
 
+        /// <summary>
+        /// Deletes a confirmation.
+        /// </summary>
+        /// <param name="id">Id of the confirmation.</param>
+        /// <returns>true if successful.</returns>
         public async Task<bool> DeleteConfirmation(long id)
         {
             var confirmation = await _context.Confirmation.FindAsync(id);

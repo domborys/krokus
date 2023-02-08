@@ -1,5 +1,8 @@
 import Form from 'react-bootstrap/Form';
 
+/**
+ * A slider for selecting distance on a map.
+ */
 export default function DistanceRange({ min = 0.05, max = 10000, value, onChange = () => { } }) {
 
     function rangeValueToKm(rangeValue) {

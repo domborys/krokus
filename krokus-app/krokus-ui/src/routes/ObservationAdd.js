@@ -14,7 +14,11 @@ import DatePicker from 'react-datepicker';
 import { UserContext } from '../services/contexts';
 import { deepParseFloat, deepIsNaN } from '../services/utils';
 import { apiService } from '../services/api';
-import { useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+
+/**
+ * Left panel for adding a new observation.
+ */
 export default function ObservationSearch() {
     const [title, setTitle] = useState('');
     const [tags, setTags] = useState([]);

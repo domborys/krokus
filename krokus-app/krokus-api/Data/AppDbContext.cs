@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace krokus_api.Data
 {
+    /// <summary>
+    /// Context for accessing the database.
+    /// </summary>
     public class AppDbContext : IdentityDbContext<User>
     {
         public AppDbContext (DbContextOptions<AppDbContext> options)

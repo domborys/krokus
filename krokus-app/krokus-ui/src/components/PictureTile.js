@@ -2,6 +2,10 @@ import Col from 'react-bootstrap/Col';
 import { apiService } from '../services/api';
 import { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
+
+/**
+ * A single tile with a picture which may be enlarged.
+ */
 export default function PictureTiles({ picture }) {
     const pictureUrl = apiService.getPictureUrl(picture.id);
     const [isEnlarged, setEnlarged] = useState(false);

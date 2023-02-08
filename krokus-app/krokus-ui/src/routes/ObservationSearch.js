@@ -11,23 +11,44 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Stack from 'react-bootstrap/Stack';
 import { MapContext } from '../services/contexts';
 import DistanceRange from '../components/DistanceRange';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+
+/**
+ * Left panel for searching observations.
+ */
 export default function ObservationSearch({onSubmit}) {
     const { title, setTitle, tags, setTags, selectedPoint, setSelectedPoint, setPointSelection, selectedPointDistance, setSelectedPointDistance,
         locationType, setLocationType, placeName, setPlaceName, selectedPlace, setSelectedPlace, } = useContext(MapContext);
     const navigate = useNavigate();
     const isLocationDistance = locationType === 'distance';
+    /**
+     * Title change handler.
+     * @param {any} e the change event.
+     */
     function handleTitleChange(e) {
         setTitle(e.target.value);
     }
+    /**
+     * Tags change handler.
+     * @param {any} newTags new state of tags.
+     */
     function handleTagsChange(newTags) {
         setTags(newTags);
     }
+    /**
+     * Location change handler.
+     * @param {any} e the change event.
+     */
     function handleLocationTypeChange(e) {
         if (e.target.checked) {
             setLocationType(e.target.value);
         }
     }
+    /**
+     * Selected point change handler.
+     * @param {any} e the change event.
+     * @param {any} coordIndex index of the coordinate (0 or 1)
+     */
     function handleSelectedPointChange(e, coordIndex) {
         const newPoint = [...selectedPoint];
         newPoint[coordIndex] = e.target.value;
@@ -48,6 +69,10 @@ export default function ObservationSearch({onSubmit}) {
     function handlePlaceDeleteClick() {
         setSelectedPlace(null);
     }
+    /**
+     * Submit event handler. It sends the search request to the API.
+     * @param {any} e the submit event.
+     */
     async function handleSubmit(e) {
         e.preventDefault();
         const params = {};

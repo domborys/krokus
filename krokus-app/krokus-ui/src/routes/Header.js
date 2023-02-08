@@ -6,6 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from '../services/contexts';
 import { apiService } from '../services/api';
 
+/**
+ * Application header with top menu.
+ * */
 export default function () {
     const { currentUser, setCurrentUser } = useContext(UserContext);
     const navigate = useNavigate();

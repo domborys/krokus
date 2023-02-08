@@ -16,6 +16,9 @@ using System.Security.Claims;
 
 namespace krokus_api.Controllers
 {
+    /// <summary>
+    /// A controller which handles the observations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ObservationsController : ControllerBase
@@ -28,20 +31,23 @@ namespace krokus_api.Controllers
             _authorizationService = authorizationService;
         }
 
-        // GET: api/Observations
+        /// <summary>
+        /// Gets the observations matching the query.
+        /// </summary>
+        /// <param name="query">The query for observations.</param>
+        /// <returns>A paginated list of observations.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<PaginatedList<ObservationDto>>> GetObservations([FromQuery] ObservationQuery query)
         {
             return await _observationService.FindWithQuery(query);
         }
-        /*
-        public async Task<ActionResult<IEnumerable<ObservationDto>>> GetAllObsesrvations()
-        {
-            return await _observationService.FindAllObservations();
-        }*/
 
-        // GET: api/Observations/5
+        /// <summary>
+        /// Gets the observation by id.
+        /// </summary>
+        /// <param name="id">Id of the observation.</param>
+        /// <returns>The observation with the specified id or Not Found.</returns>
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<ObservationDto>> GetObservation(long id)
@@ -56,6 +62,11 @@ namespace krokus_api.Controllers
             return obs;
         }
 
+        /// <summary>
+        /// Adds an observation.
+        /// </summary>
+        /// <param name="obsDto">The observation to add.</param>
+        /// <returns>The newly created observation.</returns>
         [HttpPost]
         [Authorize(Policy = Policies.HasUserRights)]
         public async Task<ActionResult<TagDto>> PostObservation(ObservationDto obsDto)
@@ -69,7 +80,12 @@ namespace krokus_api.Controllers
             return CreatedAtAction(nameof(GetObservation), new { id = createdObs.Id }, createdObs);
         }
 
-        // PUT: api/Observations/5
+        /// <summary>
+        /// Modifies the observation
+        /// </summary>
+        /// <param name="id">Id of the observation.</param>
+        /// <param name="obsDto">New version of the observation.</param>
+        /// <returns>No Content on success.</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutObservation(long id, ObservationDto obsDto)
         {
@@ -99,7 +115,11 @@ namespace krokus_api.Controllers
 
         }
 
-
+        /// <summary>
+        /// Deletes an observation.
+        /// </summary>
+        /// <param name="id">Id of the observation.</param>
+        /// <returns>No content on success.</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteObservation(long id)
         {

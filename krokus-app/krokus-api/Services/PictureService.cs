@@ -6,6 +6,9 @@ using NuGet.Versioning;
 
 namespace krokus_api.Services
 {
+    /// <summary>
+    /// A service for managing pictures added to confirmations.
+    /// </summary>
     public class PictureService : IPictureService
     {
         private readonly AppDbContext _context;
@@ -22,6 +25,11 @@ namespace krokus_api.Services
             CreatePictureFolder();
         }
 
+        /// <summary>
+        /// Adds a picture.
+        /// </summary>
+        /// <param name="fileUploadDto">Picture to add.</param>
+        /// <returns>List of the details of created picture.</returns>
         public async Task<List<PictureDetailsDto>> CreatePictures(PictureUploadDto fileUploadDto)
         {
             ValidateUploadedPictures(fileUploadDto.Files);
@@ -53,6 +61,11 @@ namespace krokus_api.Services
             return EntityToDto(picture);
         }
 
+        /// <summary>
+        /// Gets the details of a picture by id.
+        /// </summary>
+        /// <param name="id">Id of the picture.</param>
+        /// <returns>Details of the picture with the specified id.</returns>
         public async Task<PictureDetailsDto?> GetFileDetails(long id)
         {
             var picture = await _context.Picture.FindAsync(id);
@@ -63,6 +76,11 @@ namespace krokus_api.Services
             return EntityToDto(picture);
         }
 
+        /// <summary>
+        /// Gets the infromation for downloading the picture.
+        /// </summary>
+        /// <param name="id">Id of the picture</param>
+        /// <returns>Infromation for downloading the picture.</returns>
         public async Task<FileDownloadData?> GetFileDownloadData(long id)
         {
             var picture = await _context.Picture.FindAsync(id);
@@ -76,6 +94,11 @@ namespace krokus_api.Services
             };
         }
 
+        /// <summary>
+        /// Finds a file path of a picture.
+        /// </summary>
+        /// <param name="id">Id of a picture.</param>
+        /// <returns>Path of a picture.</returns>
         public async Task<string?> GetFilePath(long id)
         {
             var picture = await _context.Picture.FindAsync(id);
@@ -86,6 +109,11 @@ namespace krokus_api.Services
             return FormFilePath(picture.Filename);
         }
 
+        /// <summary>
+        /// Deletes a file with an id.
+        /// </summary>
+        /// <param name="id">Id of a file.</param>
+        /// <returns>true if successful.</returns>
         public async Task<bool> DeleteFile(long id)
         {
             var picture = await _context.Picture.FindAsync(id);

@@ -5,6 +5,10 @@ import Collapse from 'react-bootstrap/Collapse';
 import { useState } from 'react';
 import { apiService } from '../services/api';
 import { add } from 'date-fns'
+
+/*
+ * Modal for setting user ban.
+ */
 export default function BanChangeModal({ user, show, onHide = () => { } }) {
     const [banType, setBanType] = useState('unban');
     const [banDuration, setBanDuration] = useState('');

@@ -1,5 +1,8 @@
 ﻿namespace krokus_api.Consts
 {
+    /// <summary>
+    /// Policy names.
+    /// </summary>
     public class Policies
     {
         public const string HasUserRights = "IsUser";

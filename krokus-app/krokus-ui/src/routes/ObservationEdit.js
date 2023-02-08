@@ -14,6 +14,10 @@ import { UserContext } from '../services/contexts';
 import { deepParseFloat, deepToString, deepIsNaN } from '../services/utils';
 import { apiService } from '../services/api';
 import { useNavigate, useParams } from 'react-router-dom'
+
+/**
+ * Left panel for editing observations.
+ */
 export default function ObservationEdit() {
     const { id } = useParams();
     const [title, setTitle] = useState('');

@@ -16,6 +16,9 @@ import { UserContext } from '../services/contexts';
 import { rolePrettyName, formatDatetime } from '../services/utils';
 import { isBefore } from 'date-fns'
 
+/**
+ * Page showing user's profile.
+ */
 export default function UserProfile() {
     const { currentUser } = useContext(UserContext);
     const [user, setUser] = useState(null);

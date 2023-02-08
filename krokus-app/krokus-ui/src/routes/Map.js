@@ -17,6 +17,10 @@ import routeData from '../services/routeData';
 import { MapContext } from '../services/contexts';
 import { padMeters } from '../services/utils';
 import L from 'leaflet';
+/**
+ * Page with map. It has a left panel, inside of which different subpages are displayed.
+ * The right panel contains the leaflet map.
+ * */
 export default function Map() {
     const [title, setTitle] = useState('');
     const [tags, setTags] = useState([]);
@@ -39,6 +43,11 @@ export default function Map() {
     const focusedObservation = useMemo(
         () => observations.items.find(obs => obs.id === focusedObservationId) ?? null,
         [focusedObservationId]);
+
+    /**
+     * Constructs search params based on the bounds.
+     * @param {any} bounds
+     */
     function boundsToParams(bounds) {
         return {
             xmin: bounds.getWest().toFixed(6),
@@ -47,6 +56,11 @@ export default function Map() {
             ymax: bounds.getNorth().toFixed(6),
         };
     }
+
+    /**
+     * Searches observations.
+     * @param {any} subParams params passed from the subpage.
+     */
     async function searchObservations(subParams) {
         const params = { ...subParams };
         if (locationType === 'visible') {
@@ -81,6 +95,10 @@ export default function Map() {
         navigate('/map/results');
     }
 
+    /**
+     * Loads again the observations using the same params as previously.
+     * @param {any} page page of the observations to load.
+     */
     async function reloadObservations(page) {
         const newParams = { ...prevSearchParams };
         if (typeof page !== 'undefined') {
@@ -91,11 +109,19 @@ export default function Map() {
         setObservations(result);
     } 
 
+    /**
+     * Observation click handler.
+     * @param {any} observationId id of the observation
+     */
     function handleObservationClick(observationId) {
         const id = parseInt(observationId);
         navigate(`/map/observations/${id}`);
     }
 
+    /**
+     * Adds a newly created observation to the list of visible observations.
+     * @param {any} newObservation
+     */
     function displayCreatedObservation(newObservation) {
         const newObservations = {
             ...observations,

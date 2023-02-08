@@ -6,7 +6,12 @@ import { useState, useContext} from 'react';
 import DatePicker from 'react-datepicker';
 import { UserContext } from '../services/contexts';
 import { apiService } from '../services/api';
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
+/**
+ * A form for adding confirmations.
+ * 
+ */
 export default function ObservationSearch() {
     const [confirmed, setConfirmed] = useState('yes');
     const [description, setDescription] = useState('');

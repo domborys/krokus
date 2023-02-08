@@ -3,6 +3,9 @@ import { apiService } from '../services/api';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useNavigate } from 'react-router-dom'
+/**
+ * A paginated list of users.
+ */
 export default function UserPaginatedList({ params }) {
     const [users, setUsers] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);

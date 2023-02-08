@@ -10,6 +10,9 @@ import Popover from 'react-bootstrap/Popover';
 import { apiService } from '../services/api';
 const emptyTags = [];
 
+/**
+ * Input which allows to select tags.
+ */
 export default function TagInput({ initialTags = emptyTags, label, onTagsChange = () => { } }) {
     const [tags, setTags] = useState(initialTags);
     const [prevTagsProp, setPrevTagsProp] = useState(initialTags);

@@ -9,6 +9,10 @@ import { useNavigate } from 'react-router-dom';
 import { MapContext } from '../services/contexts';
 import { apiService } from '../services/api';
 import PanelHeader from '../components/PanelHeader';
+
+/**
+ * A left panel for searching for a place.
+ */
 export default function PlaceSearch() {
     const navigate = useNavigate();
     const { selectedPlace, setSelectedPlace, placeName, setPlaceName } = useContext(MapContext);

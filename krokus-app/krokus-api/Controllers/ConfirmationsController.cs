@@ -8,6 +8,9 @@ using System.Security.Claims;
 
 namespace krokus_api.Controllers
 {
+    /// <summary>
+    /// Controler which handles the confirmations added by users to observations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ConfirmationsController : ControllerBase
@@ -21,6 +24,11 @@ namespace krokus_api.Controllers
             _authorizationService = authorizationService;
         }
 
+        /// <summary>
+        /// Gets the confirmations which match the query.
+        /// </summary>
+        /// <param name="query">The query for confirmations.</param>
+        /// <returns>A collection of confirmations which match the query.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ConfirmationDto>>> GetConfirmations([FromQuery] ConfirmationQuery query)
@@ -28,6 +36,11 @@ namespace krokus_api.Controllers
             return Ok(await _confirmationService.FindWithQuery(query));
         }
 
+        /// <summary>
+        /// Gets the confirmation with the provided id.
+        /// </summary>
+        /// <param name="id">Id of the confirmation.</param>
+        /// <returns>Confirmation with the provided id or Not Found result.</returns>
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<ConfirmationDto>> GetConfirmationById(long id)
@@ -40,6 +53,11 @@ namespace krokus_api.Controllers
             return Ok(conf);
         }
 
+        /// <summary>
+        /// Adds a confirmation.
+        /// </summary>
+        /// <param name="confDto">The confirmation to add.</param>
+        /// <returns>The newly created confirmation.</returns>
         [HttpPost]
         [Authorize(Policy = Policies.HasUserRights)]
         public async Task<ActionResult<ConfirmationDto>> PostConfirmation(ConfirmationDto confDto)
@@ -52,6 +70,12 @@ namespace krokus_api.Controllers
             return Ok(createdConf);
         }
 
+        /// <summary>
+        /// Modifies a confirmation.
+        /// </summary>
+        /// <param name="id">id of the confirmation.</param>
+        /// <param name="confDto">New confirmation.</param>
+        /// <returns>No Content on success.</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutConfirmation(long id, ConfirmationDto confDto)
         {
@@ -80,6 +104,11 @@ namespace krokus_api.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a confirmation.
+        /// </summary>
+        /// <param name="id">Id of the confirmation to delete.</param>
+        /// <returns>No content on success.</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteConfirmation(long id)
         {

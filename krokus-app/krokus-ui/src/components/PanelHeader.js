@@ -1,5 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * A header at the top of most panels displayed on the left.
+ */
 export default function PanelHeader({ children, onBack }) {
     const navigate = useNavigate();
 

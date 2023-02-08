@@ -14,6 +14,11 @@ import { registerLocale, setDefaultLocale } from "react-datepicker";
 import pl from 'date-fns/locale/pl';
 import { apiService } from '../services/api';
 registerLocale('pl', pl);
+
+/**
+ * The root component.
+ * It contains the header and the content of all routes.
+ */
 export default function Root() {
     const [currentUser, setCurrentUser] = useState(null);
     const [currentUserLoading, setCurrentUserLoading] = useState(false);

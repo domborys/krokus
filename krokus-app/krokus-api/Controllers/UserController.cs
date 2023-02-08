@@ -10,6 +10,9 @@ using NuGet.Protocol.Plugins;
 
 namespace krokus_api.Controllers
 {
+    /// <summary>
+    /// Controller for managing users, account creation and authentication.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -21,6 +24,11 @@ namespace krokus_api.Controllers
             _authenticationService = authenticationService;
         }
 
+        /// <summary>
+        /// Logs in the user.
+        /// </summary>
+        /// <param name="request">Login request.</param>
+        /// <returns>Application token.</returns>
         [AllowAnonymous]
         [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
@@ -41,6 +49,11 @@ namespace krokus_api.Controllers
             
         }
 
+        /// <summary>
+        /// Adds an account.
+        /// </summary>
+        /// <param name="request">User registration data.</param>
+        /// <returns>The newly created user.</returns>
         [AllowAnonymous]
         [HttpPost("Register")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
@@ -53,6 +66,10 @@ namespace krokus_api.Controllers
             //return Ok(response);
         }
 
+        /// <summary>
+        /// Gets the information about the currently logged-in user.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Me")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
@@ -65,6 +82,11 @@ namespace krokus_api.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Gets a list of users matching the query.
+        /// </summary>
+        /// <param name="query">The query for users.</param>
+        /// <returns>Paginated list of users matching the query.</returns>
         [HttpGet]
         [Authorize(Policy = Policies.HasModeratorRights)]
         public async Task<ActionResult<PaginatedList<UserDto>>> GetUsers([FromQuery] UserQuery query)
@@ -84,6 +106,11 @@ namespace krokus_api.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Changes the password of the currently logged-in user.
+        /// </summary>
+        /// <param name="passwordChangeDto">Old and new password.</param>
+        /// <returns>No Content on success.</returns>
         [HttpPost("ChangePassword")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeDto passwordChangeDto)
@@ -99,6 +126,11 @@ namespace krokus_api.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets a user by id.
+        /// </summary>
+        /// <param name="id">Id of the user.</param>
+        /// <returns>The user with the specified id.</returns>
         [HttpGet("{id}")]
         [Authorize(Policy = Policies.HasUserRights)]
         public async Task<ActionResult<UserDto>> GetUser(string id)
@@ -111,6 +143,11 @@ namespace krokus_api.Controllers
             return user;
         }
 
+        /// <summary>
+        /// Deletes the user.
+        /// </summary>
+        /// <param name="id">Id of the user.</param>
+        /// <returns>No Content on success.</returns>
         [HttpDelete("{id}")]
         [Authorize(Policy = Policies.HasAdminRights)]
         public async Task<IActionResult> DeleteUser(string id)

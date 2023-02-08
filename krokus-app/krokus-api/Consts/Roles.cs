@@ -1,5 +1,8 @@
 ﻿namespace krokus_api.Consts
 {
+    /// <summary>
+    /// Role names.
+    /// </summary>
     public class Roles
     {
         public const string User = "User";

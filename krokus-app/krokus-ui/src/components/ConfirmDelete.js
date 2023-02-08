@@ -1,5 +1,9 @@
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+
+/**
+ * Modal for confirming deleting something.
+ */
 export default function ConfirmDelete({ show, children, onDelete = () => { }, onCancel = () => { } }) {
     function handleClose() {
         onCancel();

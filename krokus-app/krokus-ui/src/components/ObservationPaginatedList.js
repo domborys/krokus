@@ -3,6 +3,9 @@ import { apiService } from '../services/api';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useNavigate } from 'react-router-dom'
+/**
+ * Paginated list of obsesrvations.
+ */
 export default function ObservationPaginatedList({ observations, onPageChange = () => { }, onObservationClick = () => { } }) {
     
     const [currentPage, setCurrentPage] = useState(1);

@@ -6,6 +6,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { apiService } from '../services/api';
 import { isValidPassword, isValidEmail } from '../services/utils';
+
+/**
+ * A page with registration form.
+ */
 export default function Login() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');

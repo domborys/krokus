@@ -3,6 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent, Circle, Po
 import L from 'leaflet';
 import { MapContext } from '../services/contexts';
 import { padMeters } from '../services/utils';
+/**
+ * The right panel where the Leaflet map is placed.
+ */
 export default function MapPanel({ observations, onObservationClick}) {
     const { setMap, subpage } = useContext(MapContext);
     function handleMarkerClick(observationId, e) {
@@ -45,6 +48,9 @@ export default function MapPanel({ observations, onObservationClick}) {
     );
 }
 
+/**
+ * Component which rescales the map when the bounds change.
+ */
 function MapResizer({ observations }) {
     const map = useMap();
     useEffect(() => {
@@ -55,6 +61,9 @@ function MapResizer({ observations }) {
     }, [observations]);
 }
 
+/**
+ * Component which zooms the focused observation
+ */
 function MapZoomer() {
     const map = useMap();
     const { focusedObservation } = useContext(MapContext);
@@ -80,6 +89,9 @@ function getBbox(points) {
     return [[minN, minE], [maxN, maxE]];
 }
 
+/**
+ * Component which marks the selected point.
+ */
 function SelectedPointMarker() {
     const { selectedPoint, setSelectedPoint, isPointSelection, setPointSelection,
         selectedPointDistance, locationType, addLocationType, setAddLocationType, subpage } = useContext(MapContext);
@@ -129,6 +141,9 @@ function filterEmptyPoints(points) {
     return points.filter(point => point.some(coord => coord.trim() !== ''));
 }
 
+/**
+ * Component which shows the selected polygon.
+ */
 function SelectedPolygon() {
     const { selectedPolygon, setSelectedPolygon, isPolygonSelection, setPolygonSelection, subpage, addLocationType } = useContext(MapContext);
     const selectedPolygonFloat = useMemo(() => filterNanPoints(deepParseFloat(selectedPolygon)), [selectedPolygon]);
@@ -157,6 +172,9 @@ function SelectedPolygon() {
 
 }
 
+/**
+ * Component which shows the boundaries of the selected place (e.g. town).
+ */
 function SelectedPlace() {
     const map = useMap();
     const { selectedPlace, locationType, subpage, selectedPointDistance } = useContext(MapContext);

@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace krokus_api.Controllers
 {
+    /// <summary>
+    /// Controller for handling arrors.
+    /// </summary>
     [Route("api")]
     [ApiController]
     public class ErrorController : ControllerBase

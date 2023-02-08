@@ -4,6 +4,10 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { useState } from 'react';
 import UserPaginatedList from '../components/UserPaginatedList';
+
+/**
+ * A pagin for searching users.
+ */
 export default function UserProfile() {
     const [username, setUsername] = useState('');
     const [searchParams, setSearchParams] = useState({});

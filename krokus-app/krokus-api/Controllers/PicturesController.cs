@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace krokus_api.Controllers
 {
+    /// <summary>
+    /// Controller for handling the pictures added to confirmations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class PicturesController : ControllerBase
@@ -24,6 +27,11 @@ namespace krokus_api.Controllers
             _authorizationService = authorizationService;
         }
 
+        /// <summary>
+        /// Gets the details about a picture.
+        /// </summary>
+        /// <param name="id">Id of the picture.</param>
+        /// <returns>The details of the picture.</returns>
         [HttpGet("{id}/Details")]
         [AllowAnonymous]
         public async Task<ActionResult<PictureDetailsDto>> GetPictureDetails(long id)
@@ -36,6 +44,11 @@ namespace krokus_api.Controllers
             return Ok(picture);
         }
 
+        /// <summary>
+        /// Gets the contents (file) of a picture.
+        /// </summary>
+        /// <param name="id">Id of the picture.</param>
+        /// <returns>The picture.</returns>
         [HttpGet("{id}/Contents")]
         [AllowAnonymous]
         public async Task<ActionResult> GetPictureContents(long id)
@@ -49,6 +62,11 @@ namespace krokus_api.Controllers
             return PhysicalFile(downloadData.FilePath, contentType ?? "application/octet-stream");
         }
 
+        /// <summary>
+        /// Adds a picture
+        /// </summary>
+        /// <param name="pictureUploadDto">Picture details and contents.</param>
+        /// <returns>List of the details of created pictures.</returns>
         [HttpPost]
         public async Task<ActionResult<List<PictureDetailsDto>>> PostPicture([FromForm] PictureUploadDto pictureUploadDto)
         {
@@ -74,6 +92,11 @@ namespace krokus_api.Controllers
             }
             
         }
+        /// <summary>
+        /// Deletes a picture.
+        /// </summary>
+        /// <param name="id">Id of the picture.</param>
+        /// <returns>No Content on success.</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePicture(long id)
         {

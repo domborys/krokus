@@ -1,5 +1,11 @@
 import { parseJwt } from './utils';
+
+/**
+ * A service for accessing the API of the app.*/
 class ApiService {
+    /**
+     * Initializes the service.
+     */
     constructor() {
         this.token = this.loadToken();
         this.currentUser = null;
@@ -7,6 +13,9 @@ class ApiService {
         this.nominatimPrefix = 'https://nominatim.openstreetmap.org/search?'
     }
 
+    /**
+     * Gets the API token from the session storage.
+     */
     loadToken() {
         const sessionToken = sessionStorage.getItem('token');
         if (sessionToken === null) {
@@ -21,6 +30,11 @@ class ApiService {
         }
     }
 
+    /**
+     * Authenticate the user at the API.
+     * The API token is then saved in the service and used for future requests.
+     * @param {any} credentials username and password.
+     */
     async authenticate(credentials) {
         const credentialsDto = { ...credentials };
         const url = this.apiPrefix + '/User/Login';
@@ -43,6 +57,9 @@ class ApiService {
 
     }
 
+    /**
+     * Gets the currently logged-in user.
+     */
     async getCurrentUser() {
         if (this.token === null) {
             return null;
@@ -51,12 +68,19 @@ class ApiService {
         this.currentUser = await this.fetchJson(url);
         return this.currentUser;
     }
+    /**
+     * Logs out (deletes the token)
+     */
     async logout() {
         this.token = null;
         this.currentUser = null;
         sessionStorage.removeItem('token');
     }
 
+    /**
+     * Posts a register request.
+     * @param {any} registerData data required for registration.
+     */
     async register(registerData) {
         const url = this.apiPrefix + '/User/register';
         const options = {
@@ -67,6 +91,10 @@ class ApiService {
         return response;
     }
 
+    /**
+     * Changes current user's password.
+     * @param {any} passwordData the old and the new password.
+     */
     async changePassword(passwordData) {
         const url = this.apiPrefix + '/User/ChangePassword';
         const options = {
@@ -76,18 +104,30 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    /**
+     * Gest observations which match the params.
+     * @param {any} params params describing the observations.
+     */
     async getObservations(params) {
         const url = this.apiPrefix + '/Observations?' + paramsToUrl(params);
         const apiObservations = await this.fetchJson(url);
         return this.prepareObservations(apiObservations);
     }
 
+    /**
+     * Gets an observation by id.
+     * @param {any} id id of the observation.
+     */
     async getObservation(id) {
         const url = this.apiPrefix + '/Observations/' + id;
         const apiObsesrvation = await this.fetchJson(url);
         return this.prepareObservation(apiObsesrvation);
     }
 
+    /**
+     * Gets the confirmations of the observation with the supplied id.
+     * @param {any} observationId id of the observation.
+     */
     async getConfirmationsOfObservation(observationId) {
         
         const searchParams = new URLSearchParams({ observationId: observationId });
@@ -95,16 +135,28 @@ class ApiService {
         return await this.fetchJson(url);
     }
 
+    /**
+     * Gets a confirmation by id.
+     * @param {any} id id of the confirmation.
+     */
     async getConfirmation(id) {
         const url = this.apiPrefix + '/Confirmations/' + id;
         return await this.fetchJson(url);
     }
 
+    /**
+     * Gets confirmations using search params.
+     * @param {any} params params describing the confirmations.
+     */
     async getConfirmations(params) {
         const url = this.apiPrefix + '/Confirmations?' + paramsToUrl(params);
         return await this.fetchJson(url);
     }
 
+    /**
+     * Posts a new observation.
+     * @param {any} observation the observation to post.
+     */
     async postObservation(observation) {
         const url = this.apiPrefix + '/Observations/';
         const observationToSend = {
@@ -120,6 +172,10 @@ class ApiService {
         return this.prepareObservation(response);
     }
 
+    /**
+     * Puts a new version of the observation.
+     * @param {any} observation the new version of the observation.
+     */
     async putObservation(observation) {
         const url = this.apiPrefix + '/Observations/' + observation.id;
         const observationToSend = {
@@ -135,7 +191,10 @@ class ApiService {
     }
 
     
-
+    /**
+     * Deletes an observation.
+     * @param {any} id id of the observation.
+     */
     async deleteObservation(id) {
         const url = this.apiPrefix + '/Observations/' + id;
         const options = {
@@ -144,6 +203,10 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    /**
+     * Posts a new confirmation.
+     * @param {any} confirmation the confirmation to add.
+     */
     async postConfirmation(confirmation) {
         const url = this.apiPrefix + '/Confirmations/';
         const options = {
@@ -154,6 +217,10 @@ class ApiService {
         return response;
     }
 
+    /**
+     * Puts a new version of the confirmation.
+     * @param {any} confirmation the new version of the confirmation.
+     */
     async putConfirmation(confirmation) {
         const url = this.apiPrefix + '/Confirmations/' + confirmation.id;
         const options = {
@@ -163,6 +230,10 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    /**
+     * Deletes a confirmation.
+     * @param {any} id id of the confirmation.
+     */
     async deleteConfirmation(id) {
         const url = this.apiPrefix + '/Confirmations/' + id;
         const options = {
@@ -171,6 +242,11 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    /**
+     * Posts pictures related to a confirmation.
+     * @param {any} confirmationId id of the confirmation.
+     * @param {any} files picture files.
+     */
     async postPictures(confirmationId, files) {
         const formData = new FormData();
         formData.append('confirmationId', confirmationId);
@@ -192,6 +268,10 @@ class ApiService {
         }
     }
 
+    /**
+     * Deletes a picture.
+     * @param {any} id id of the picture.
+     */
     async deletePicture(id) {
         const url = this.apiPrefix + '/Pictures/' + id;
         const options = {
@@ -200,11 +280,19 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    /**
+     * Gets tags by the params.
+     * @param {any} params params describing the tags.
+     */
     async getTags(params) {
         const url = this.apiPrefix + '/Tags?' + paramsToUrl(params);
         return await this.fetchJson(url);
     }
 
+    /**
+     * Gueries the nominatim api for a place by name.
+     * @param {any} placeQuery query describing the place.
+     */
     async getPlace(placeQuery) {
         const params = {
             'q': placeQuery,
@@ -217,17 +305,30 @@ class ApiService {
         return this.transformNominatimResponse(response);
     }
 
+    /**
+     * Gets a user by id.
+     * @param {any} id user's id.
+     */
     async getUser(id) {
         const url = this.apiPrefix + '/User/' + id;
         const user = await this.fetchJson(url);
         return user;
     }
 
+    /**
+     * Gets users with using the params.
+     * @param {any} params params describing the users.
+     */
     async getUsers(params) {
         const url = this.apiPrefix + '/User?' + paramsToUrl(params);
         return await this.fetchJson(url);
     }
 
+    /**
+     * Sets the role of the user.
+     * @param {any} userId user's id.
+     * @param {any} role user's new role.
+     */
     async putUserRole(userId, role) {
         const url = this.apiPrefix + '/User/' + userId + '/Role';
         const body = { role };
@@ -238,6 +339,11 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    /**
+     * Sets or lifts user's ban.
+     * @param {any} userId id of the user.
+     * @param {any} banData data describing the ban.
+     */
     async putUserBan(userId, banData) {
         const url = this.apiPrefix + '/User/' + userId + '/Ban';
         const options = {
@@ -247,6 +353,12 @@ class ApiService {
         await this.fetchJson(url, options);
     }
 
+    /**
+     * Helper method for fetching data.
+     * @param {any} url url to fetch.
+     * @param {any} options options (the same as for native fetch).
+     * @param {any} sendToken true if the token should be sent (default is true).
+     */
     async fetchJson(url, options = {}, sendToken = true) {
         let headers = {
             'Content-Type': 'application/json',

@@ -1,9 +1,14 @@
 import { matchPath } from 'react-router-dom';
+/**
+ * Class providing some information about paths.*/
 class RouteData {
     constructor(paths) {
         this.paths = paths;
     }
-
+    /**
+     * Finds the name of the provided path.
+     * @param {any} path
+     */
     findRouteName(path) {
         const [key] = Object.entries(this.paths).find(([, value]) => !!matchPath({ path: value }, path)) ?? [undefined];
         return key;

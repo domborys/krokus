@@ -7,6 +7,9 @@ import { useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { apiService } from '../services/api';
 import { UserContext } from '../services/contexts';
+/**
+ * Login page.
+ * */
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');

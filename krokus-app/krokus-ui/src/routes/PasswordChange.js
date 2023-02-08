@@ -7,6 +7,10 @@ import { useNavigate } from 'react-router-dom'
 import { apiService } from '../services/api';
 import { isValidPassword } from '../services/utils';
 import { UserContext } from '../services/contexts';
+
+/**
+ * A page for changing the password.
+ */
 export default function Login() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');

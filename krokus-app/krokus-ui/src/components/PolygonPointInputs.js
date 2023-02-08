@@ -3,6 +3,9 @@ import { useContext } from 'react';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 
+/**
+ * Inputs for setting polygon coordinates.
+ */
 export default function PolygonPointInputs({ pointIndex }) {
     const { selectedPolygon, setSelectedPolygon } = useContext(MapContext);
 

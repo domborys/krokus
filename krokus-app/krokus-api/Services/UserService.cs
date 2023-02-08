@@ -16,6 +16,9 @@ using System.Text;
 
 namespace krokus_api.Services
 {
+    /// <summary>
+    /// Service for managing users and authentication.
+    /// </summary>
     public class UserService : IUserService
     {
         private readonly UserManager<User> _userManager;
@@ -33,6 +36,12 @@ namespace krokus_api.Services
             _context = context;
         }
 
+        /// <summary>
+        /// Adds user account.
+        /// </summary>
+        /// <param name="request">The user to create.</param>
+        /// <returns>The newly created user.</returns>
+        /// <exception cref="ArgumentException"></exception>
         public async Task<UserDto> Register(RegisterDto request)
         {
             var userByEmail = await _userManager.FindByEmailAsync(request.Email);
@@ -66,6 +75,12 @@ namespace krokus_api.Services
             return EntityToDto(savedUser, savedRoles);
         }
 
+        /// <summary>
+        /// Tries to log in the user.
+        /// </summary>
+        /// <param name="request">Login request.</param>
+        /// <returns>API access token.</returns>
+        /// <exception cref="LoginException">Thrown when the credentials are invalid or user is banned.</exception>
         public async Task<string> Login(LoginDto request)
         {
             var user = await _userManager.FindByNameAsync(request.Username);
@@ -105,22 +120,22 @@ namespace krokus_api.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        /// <summary>
+        /// Gets the currently logged-in user.
+        /// </summary>
+        /// <returns>The currently logged-in user.</returns>
         public async Task<UserDto> GetCurrentUser()
         {
             var user = _httpContextAccessor.HttpContext?.User;
             var dbuser = await _userManager.GetUserAsync(user);
             var roles = await _userManager.GetRolesAsync(dbuser);
             return EntityToDto(dbuser, roles);
-            /*
-            return new UserDto()
-            {
-                Id = dbuser.Id,
-                Username = dbuser.UserName,
-                Email = dbuser.Email,
-                Role = roles.FirstOrDefault(),
-            };*/
         }
-
+        /// <summary>
+        /// Finds a user by id.
+        /// </summary>
+        /// <param name="id">Id of the user.</param>
+        /// <returns>The user with the specified id.</returns>
         public async Task<UserDto?> FindById(string id)
         {
             var dbuser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
@@ -131,7 +146,10 @@ namespace krokus_api.Services
             var roles = await _userManager.GetRolesAsync(dbuser);
             return EntityToDto(dbuser, roles);
         }
-
+        /// <summary>
+        /// Finds all users.
+        /// </summary>
+        /// <returns>List of all users.</returns>
         public async Task<List<UserDto>> GetAllUsers()
         {
             return await _context.Users.Select(u => new
@@ -156,7 +174,11 @@ namespace krokus_api.Services
             }).ToListAsync();
             
         }
-
+        /// <summary>
+        /// Finds user using query.
+        /// </summary>
+        /// <param name="queryData">the query</param>
+        /// <returns>Paginated list of users matching the query.</returns>
         public async Task<PaginatedList<UserDto>> FindWithQuery(UserQuery queryData)
         {
             var query = _context.Users.Select(u => new
@@ -188,6 +210,11 @@ namespace krokus_api.Services
             return await PaginatedList<UserDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
         }
 
+        /// <summary>
+        /// Changes user password.
+        /// </summary>
+        /// <param name="passwordChangeRequest">Password request change.</param>
+        /// <returns>true if successful.</returns>
         public async Task<IdentityResult> ChangePassword(PasswordChangeDto passwordChangeRequest)
         {
             var user = _httpContextAccessor.HttpContext?.User;
@@ -196,6 +223,12 @@ namespace krokus_api.Services
             return result;
         }
 
+        /// <summary>
+        /// Sets the role of the user.
+        /// </summary>
+        /// <param name="userId">User id.</param>
+        /// <param name="newRole">New role of the user.</param>
+        /// <returns></returns>
         public async Task SetUserRole(string userId, string newRole)
         {
             ValidateRole(newRole);
@@ -206,6 +239,12 @@ namespace krokus_api.Services
             await _userManager.AddToRoleAsync(user, newRole);
         }
 
+        /// <summary>
+        /// Sets or lifts user ban.
+        /// </summary>
+        /// <param name="userId">User id.</param>
+        /// <param name="banDto">Information about ban.</param>
+        /// <returns></returns>
         public async Task SetUserBan(string userId, UserBanDto banDto)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -214,6 +253,11 @@ namespace krokus_api.Services
             await _userManager.UpdateAsync(user);
         }
 
+        /// <summary>
+        /// Koń jaki jest, każdy widzi.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public async Task CreateAdminIfDoesntExist()
         {
             string? username = _configuration["DefaultAdmin:Username"];
@@ -244,7 +288,10 @@ namespace krokus_api.Services
             }
 
         }
-
+        /// <summary>
+        /// Creates roles if they don't exist in the database.
+        /// </summary>
+        /// <returns></returns>
         public async Task CreateRoles()
         {
             var existingRoles = await _roleManager.Roles.Select(role => role.Name).ToListAsync();
@@ -255,6 +302,11 @@ namespace krokus_api.Services
             }
         }
 
+        /// <summary>
+        /// Deletes the user.
+        /// </summary>
+        /// <param name="id">Id of the user</param>
+        /// <returns></returns>
         public async Task<bool> DeleteUser(string id)
         {
             var user = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();

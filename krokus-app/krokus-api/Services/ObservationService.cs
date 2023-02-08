@@ -6,6 +6,9 @@ using NetTopologySuite.Geometries;
 
 namespace krokus_api.Services
 {
+    /// <summary>
+    /// Service managing observations.
+    /// </summary>
     public class ObservationService : IObservationService
     {
         private readonly AppDbContext _context;
@@ -15,6 +18,10 @@ namespace krokus_api.Services
             _context = context;
         }
 
+        /// <summary>
+        /// Finds all observations.
+        /// </summary>
+        /// <returns>The list of all observations.</returns>
         public async Task<List<ObservationDto>> FindAllObservations()
         {
             return await _context.Observation.Include(obs => obs.Tags).Select(obs => new ObservationDto
@@ -28,6 +35,11 @@ namespace krokus_api.Services
             }).ToListAsync();
         }
 
+        /// <summary>
+        /// Finds an observation by id.
+        /// </summary>
+        /// <param name="id">Id of the observation.</param>
+        /// <returns>The observation with the provided id.</returns>
         public async Task<ObservationDto?> FindById(long id)
         {
             var obs = await _context.Observation.Include(obs => obs.Tags).Include(obs => obs.Confirmations).Include(obs => obs.User).FirstOrDefaultAsync(obs => obs.Id == id);
@@ -38,6 +50,11 @@ namespace krokus_api.Services
             return EntityToDto(obs);
         }
 
+        /// <summary>
+        /// Finds observations according to a query.
+        /// </summary>
+        /// <param name="queryData">Quero for the observations.</param>
+        /// <returns>Paginated list of the observations matching the query.</returns>
         public async Task<PaginatedList<ObservationDto>> FindWithQuery(ObservationQuery queryData)
         {
             IQueryable<Observation> query = _context.Observation;
@@ -68,7 +85,11 @@ namespace krokus_api.Services
             }).OrderBy(obs => obs.Id);
             return await PaginatedList<ObservationDto>.QueryAsync(source, queryData.PageIndex, queryData.PageSize);
         }
-
+        /// <summary>
+        /// Creates an observation.
+        /// </summary>
+        /// <param name="obsDto">The observation to add.</param>
+        /// <returns>The newly created observation.</returns>
         public async Task<ObservationDto> CreateObservation(ObservationDto obsDto)
         {
             if (obsDto.Location is not null)
@@ -95,6 +116,11 @@ namespace krokus_api.Services
             return EntityToDto(obs);
         }
 
+        /// <summary>
+        /// Updates an observation.
+        /// </summary>
+        /// <param name="obsDto">The updated observation.</param>
+        /// <returns>true if successful.</returns>
         public async Task<bool> UpdateObservation(ObservationDto obsDto)
         {
             Observation? obs = await _context.Observation.Include(obs => obs.Tags).FirstOrDefaultAsync(obs => obs.Id == obsDto.Id);
@@ -113,6 +139,11 @@ namespace krokus_api.Services
             return true;
         }
 
+        /// <summary>
+        /// Deletes an observation.
+        /// </summary>
+        /// <param name="id">Id of the observation.</param>
+        /// <returns>true if successful.</returns>
         public async Task<bool> DeleteObservation(long id)
         {
             Observation? obs = await _context.Observation.FindAsync(id);

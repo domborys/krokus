@@ -7,6 +7,10 @@ import ConfirmDelete from '../components/ConfirmDelete';
 import { Link } from "react-router-dom";
 import { UserContext } from '../services/contexts';
 import { formatDatetime } from '../services/utils';
+
+/**
+ * A single confirmation item.
+ */
 export default function ConfirmationItem({ confirmation, onConfirmationDeleted = () => { } }) {
     const { currentUser } = useContext(UserContext);
     const [isConfirmationDelete, setConfirmationDelete] = useState(false);

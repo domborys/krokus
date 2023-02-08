@@ -3,6 +3,10 @@ import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
 import ConfirmationItem from '../components/ConfirmationItem';
 import { useNavigate } from 'react-router-dom'
+
+/**
+ * Paginated list of confirmations.
+ */
 export default function ConfirmationPaginatedList({ confirmations, onPageChange = () => { } }) {
     
     const [currentPage, setCurrentPage] = useState(1);

@@ -3,6 +3,9 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
 import { apiService } from '../services/api';
+/**
+ * Modal for setting user's role.
+ */
 export default function RoleChangeModal({ user, show, onHide = () => { } }) {
     const [role, setRole] = useState(user?.role);
     const [prevRole, setPrevRole] = useState(user?.role);

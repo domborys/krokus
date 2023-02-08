@@ -8,6 +8,10 @@ import { apiService } from '../services/api';
 import { useNavigate, useParams } from 'react-router-dom'
 import Stack from 'react-bootstrap/Stack';
 import PanelHeader from '../components/PanelHeader';
+
+/**
+ * Form for editing confirmations
+ * */
 export default function ObservationSearch() {
     const [confirmed, setConfirmed] = useState('yes');
     const [description, setDescription] = useState('');
